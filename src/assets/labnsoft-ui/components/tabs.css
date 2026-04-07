@@ -1,0 +1,148 @@
+/* LabnSoft Component — Tabs
+ * Sidebar tabs (Settings Dialog pattern)
+ * Tree navigation (Structure Library pattern)
+ */
+
+/* === Tab Sidebar === */
+.ln-tab-sidebar {
+  background: var(--ln-bg-sidebar);
+  border-right: 1px solid var(--ln-border-light);
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ln-gap-tight);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Tab item */
+.ln-tab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  color: var(--ln-text-tab);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: var(--ln-transition-base);
+}
+
+.ln-tab:hover {
+  background: var(--ln-bg-hover-blue);
+  color: var(--ln-text);
+}
+
+.ln-tab.active {
+  background: var(--ln-bg);
+  color: var(--ln-primary);
+  font-weight: var(--ln-weight-semibold);
+  border-left-color: var(--ln-primary);
+}
+
+/* === Tree Navigation === */
+
+/* Tree group header (collapsible) */
+.ln-tree-header {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  flex-shrink: 0;
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  font-weight: var(--ln-weight-semibold);
+  color: #444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--ln-gap-base);
+  user-select: none;
+  border-left: 3px solid transparent;
+  transition: var(--ln-transition-base);
+}
+
+.ln-tree-header:hover {
+  background: var(--ln-bg-hover-blue);
+  color: var(--ln-text);
+}
+
+.ln-tree-chevron {
+  font-size: 10px;
+  color: var(--ln-text-light);
+  line-height: 1;
+}
+
+/* Tree item (indented child) */
+.ln-tree-item {
+  padding: 8px 16px 8px 32px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  flex-shrink: 0;
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  color: var(--ln-text-tab);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: var(--ln-transition-base);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ln-tree-item:hover {
+  background: var(--ln-bg-hover-blue);
+  color: var(--ln-text);
+}
+
+.ln-tree-item.active {
+  background: var(--ln-bg);
+  color: var(--ln-primary);
+  font-weight: var(--ln-weight-semibold);
+  border-left-color: var(--ln-primary);
+}
+
+/* Tree leaf (top-level, no indent) */
+.ln-tree-leaf {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  flex-shrink: 0;
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  color: var(--ln-text-tab);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: var(--ln-transition-base);
+}
+
+.ln-tree-leaf:hover {
+  background: var(--ln-bg-hover-blue);
+  color: var(--ln-text);
+}
+
+.ln-tree-leaf.active {
+  background: var(--ln-bg);
+  color: var(--ln-primary);
+  font-weight: var(--ln-weight-semibold);
+  border-left-color: var(--ln-primary);
+}
+
+/* Count badge */
+.ln-tree-count {
+  font-weight: var(--ln-weight-normal);
+  color: var(--ln-text-muted);
+  font-size: var(--ln-text-base);
+  margin-left: 4px;
+}
+
+/* Sidebar divider */
+.ln-sidebar-divider {
+  height: 1px;
+  background: var(--ln-divider);
+  margin: 8px 12px;
+  flex-shrink: 0;
+}

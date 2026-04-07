@@ -1,0 +1,214 @@
+/* LabnSoft Component — Buttons
+ * 4 types: icon-btn, text-btn, footer-btn, action-btn
+ */
+
+/* === Icon Button (32x32, toolbar) === */
+.ln-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ln-radius-sm);
+  background: transparent;
+  color: var(--ln-text);
+  cursor: pointer;
+  transition: var(--ln-transition-bg);
+}
+
+.ln-icon-btn img,
+.ln-icon-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.ln-icon-btn:hover {
+  background: var(--ln-hover-overlay);
+}
+
+.ln-icon-btn.active {
+  background: var(--ln-primary-light);
+  outline: 1.5px solid var(--ln-primary-outline);
+}
+
+.ln-icon-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Small icon button (28x28, compact) */
+.ln-icon-btn-sm {
+  width: 28px;
+  height: 28px;
+}
+
+.ln-icon-btn-sm:hover {
+  background: var(--ln-hover-overlay-light);
+}
+
+/* Add button — icon-btn-sm + color accent */
+.ln-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--ln-radius-sm);
+  background: transparent;
+  color: var(--ln-text-secondary);
+  font-size: 20px;
+  cursor: pointer;
+  transition: var(--ln-transition-bg);
+}
+
+.ln-add-btn:hover {
+  background: var(--ln-hover-overlay-light);
+  color: var(--ln-primary);
+}
+
+/* === Text Button (dialog footer 등) === */
+.ln-btn {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  padding: 8px 16px;
+  border-radius: var(--ln-radius-base);
+  border: 1px solid transparent;
+  background: var(--ln-bg-hover);
+  color: var(--ln-text);
+  cursor: pointer;
+  transition: var(--ln-transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ln-btn:hover {
+  background: #e8e9eb;
+}
+
+/* Primary variant */
+.ln-btn-primary {
+  background: var(--ln-primary);
+  color: #fff;
+}
+
+.ln-btn-primary:hover {
+  background: var(--ln-primary-hover);
+}
+
+/* Danger variant */
+.ln-btn-danger {
+  background: var(--ln-danger);
+  color: #fff;
+}
+
+.ln-btn-danger:hover {
+  background: #c62828;
+}
+
+/* Success variant */
+.ln-btn-success {
+  background: #2e7d32;
+  color: #fff;
+}
+
+.ln-btn-success:hover {
+  background: #1b5e20;
+}
+
+/* Ghost (reset, subtle action) */
+.ln-btn-ghost {
+  border: none;
+  background: transparent;
+  color: var(--ln-text-tertiary);
+  font-size: var(--ln-text-md);
+}
+
+.ln-btn-ghost:hover {
+  color: var(--ln-danger);
+  background: rgba(229, 57, 53, 0.06);
+}
+
+/* === Action Button (bottom bar — frosted label button) === */
+.ln-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ln-gap-sm);
+  padding: 8px 8px;
+  border: 1px solid var(--ln-border);
+  border-radius: var(--ln-radius-base);
+  background: var(--ln-bg-frosted);
+  backdrop-filter: var(--ln-blur-sm);
+  box-shadow: var(--ln-shadow-sm);
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-sm);
+  font-weight: var(--ln-weight-medium);
+  color: var(--ln-text-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: var(--ln-transition-base);
+}
+
+.ln-action-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  color: var(--ln-text);
+}
+
+.ln-action-btn img {
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
+}
+
+.ln-action-btn:hover img {
+  opacity: 1;
+}
+
+.ln-action-btn.active {
+  background: #e8e9eb;
+  border-color: #ccc;
+  color: var(--ln-text);
+}
+
+.ln-action-btn.active img {
+  opacity: 1;
+}
+
+/* Cheat variant — gradient background */
+.ln-action-btn-cheat {
+  background: linear-gradient(135deg, #f0f5ff, #dce8ff);
+}
+
+.ln-action-btn-cheat:hover {
+  background: linear-gradient(135deg, #e8f0ff, #d0e0ff);
+}
+
+.ln-action-btn-cheat.active {
+  background: #e8e9eb;
+}
+
+/* === Close Button (dialog X) === */
+.ln-close-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  color: var(--ln-text-light);
+  cursor: pointer;
+  border-radius: var(--ln-radius-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ln-close-btn:hover {
+  background: var(--ln-bg-hover);
+  color: var(--ln-text);
+}

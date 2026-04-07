@@ -1,0 +1,50 @@
+/* LabnSoft Design Tokens — Colors */
+:root {
+  /* Primary */
+  --ln-primary: #1a73e8;
+  --ln-primary-hover: #1557b0;
+  --ln-primary-light: rgba(26, 115, 232, 0.12);
+  --ln-primary-outline: rgba(26, 115, 232, 0.5);
+
+  /* Background */
+  --ln-bg: #ffffff;
+  --ln-bg-frosted: rgba(255, 255, 255, 0.95);
+  --ln-bg-sidebar: #f7f8fa;
+  --ln-bg-hover: #f0f1f3;
+  --ln-bg-hover-blue: #eef1f5;
+  --ln-bg-card-hover: #f8faff;
+  --ln-bg-loading: #f8f8f8;
+
+  /* Border */
+  --ln-border-glass: rgba(255, 255, 255, 0.6);
+  --ln-border: #e0e0e0;
+  --ln-border-light: #eeeeee;
+  --ln-border-input: #dddddd;
+  --ln-divider: #dddddd;
+
+  /* Text */
+  --ln-text: #333333;
+  --ln-text-heading: #222222;
+  --ln-text-secondary: #555555;
+  --ln-text-tertiary: #888888;
+  --ln-text-light: #999999;
+  --ln-text-muted: #aaaaaa;
+  --ln-text-tab: #666666;
+
+  /* Semantic */
+  --ln-danger: #e53935;
+  --ln-badge-toggle: #4a90d9;
+  --ln-badge-popup: #e8913a;
+
+  /* Toggle */
+  --ln-toggle-off: #cccccc;
+  --ln-toggle-on: var(--ln-primary);
+
+  /* Effects */
+  --ln-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --ln-shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.18);
+  --ln-blur: blur(8px);
+  --ln-backdrop: rgba(0, 0, 0, 0.35);
+  --ln-hover-overlay: rgba(0, 0, 0, 0.08);
+  --ln-hover-overlay-light: rgba(0, 0, 0, 0.06);
+}

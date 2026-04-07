@@ -1,0 +1,161 @@
+/* LabnSoft Component — Panels
+ * Info panel (calc values), Cheat panel (shortcut reference)
+ */
+
+/* === Info Panel (Calculated Values style) === */
+.ln-info-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--ln-radius-base);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  padding: var(--ln-pad-comfy);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ln-gap-base);
+}
+
+.ln-info-panel-title {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-md);
+  font-weight: var(--ln-weight-semibold);
+  color: var(--ln-text);
+  margin-bottom: var(--ln-space-2);
+}
+
+.ln-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ln-gap-xl);
+}
+
+.ln-info-label {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-base);
+  color: var(--ln-text-tertiary);
+}
+
+.ln-info-value {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-base);
+  font-weight: var(--ln-weight-semibold);
+  color: var(--ln-text);
+  text-align: right;
+}
+
+/* === Cheat Panel (reference/shortcut list) === */
+.ln-cheat-panel {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--ln-radius-base);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ln-gap-lg);
+}
+
+.ln-cheat-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ln-gap-base);
+}
+
+.ln-cheat-title {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-base);
+  font-weight: var(--ln-weight-semibold);
+  color: var(--ln-text);
+  margin-bottom: var(--ln-space-1);
+}
+
+.ln-cheat-row {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-base);
+  font-weight: var(--ln-weight-semibold);
+  color: var(--ln-text-tab);
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  gap: var(--ln-gap-base);
+  white-space: nowrap;
+}
+
+/* === Dialog Panel (settings/library content area) === */
+.ln-panel {
+  padding: var(--ln-pad-spacious);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ln-gap-lg);
+}
+
+/* Field row (label + control) */
+.ln-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ln-gap-lg);
+  min-height: 32px;
+}
+
+.ln-field-label {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  color: var(--ln-text);
+  flex: 1;
+}
+
+.ln-field-control {
+  flex-shrink: 0;
+}
+
+/* Input */
+.ln-input {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  padding: 8px 12px;
+  border: 1px solid var(--ln-border-input);
+  border-radius: var(--ln-radius-base);
+  outline: none;
+  transition: var(--ln-transition-border);
+}
+
+.ln-input:focus {
+  border-color: var(--ln-primary);
+}
+
+.ln-input-number {
+  width: 80px;
+  text-align: right;
+}
+
+.ln-select {
+  min-width: 120px;
+  cursor: pointer;
+}
+
+/* Color input */
+.ln-color-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--ln-gap-base);
+}
+
+.ln-color-input {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--ln-border-input);
+  border-radius: var(--ln-radius-base);
+  padding: 2px;
+  cursor: pointer;
+}
+
+.ln-color-label {
+  font-family: var(--ln-font-mono);
+  font-size: var(--ln-text-md);
+  color: var(--ln-text-tertiary);
+}

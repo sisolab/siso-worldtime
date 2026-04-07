@@ -1,0 +1,83 @@
+export interface City {
+  id: string
+  nameKo: string
+  nameEn: string
+  timezone: string
+  lat: number
+  lng: number
+}
+
+export const CITIES: City[] = [
+  // Asia/Pacific
+  { id: 'seoul', nameKo: '서울', nameEn: 'Seoul', timezone: 'Asia/Seoul', lat: 37.57, lng: 126.98 },
+  { id: 'tokyo', nameKo: '도쿄', nameEn: 'Tokyo', timezone: 'Asia/Tokyo', lat: 35.69, lng: 139.69 },
+  { id: 'beijing', nameKo: '베이징', nameEn: 'Beijing', timezone: 'Asia/Shanghai', lat: 39.91, lng: 116.39 },
+  { id: 'shanghai', nameKo: '상하이', nameEn: 'Shanghai', timezone: 'Asia/Shanghai', lat: 31.23, lng: 121.47 },
+  { id: 'hongkong', nameKo: '홍콩', nameEn: 'Hong Kong', timezone: 'Asia/Hong_Kong', lat: 22.32, lng: 114.17 },
+  { id: 'taipei', nameKo: '타이베이', nameEn: 'Taipei', timezone: 'Asia/Taipei', lat: 25.04, lng: 121.56 },
+  { id: 'singapore', nameKo: '싱가포르', nameEn: 'Singapore', timezone: 'Asia/Singapore', lat: 1.35, lng: 103.82 },
+  { id: 'bangkok', nameKo: '방콕', nameEn: 'Bangkok', timezone: 'Asia/Bangkok', lat: 13.75, lng: 100.52 },
+  { id: 'jakarta', nameKo: '자카르타', nameEn: 'Jakarta', timezone: 'Asia/Jakarta', lat: -6.21, lng: 106.85 },
+  { id: 'kualalumpur', nameKo: '쿠알라룸푸르', nameEn: 'Kuala Lumpur', timezone: 'Asia/Kuala_Lumpur', lat: 3.14, lng: 101.69 },
+  { id: 'manila', nameKo: '마닐라', nameEn: 'Manila', timezone: 'Asia/Manila', lat: 14.60, lng: 120.98 },
+  { id: 'hanoi', nameKo: '하노이', nameEn: 'Hanoi', timezone: 'Asia/Ho_Chi_Minh', lat: 21.03, lng: 105.85 },
+  { id: 'kolkata', nameKo: '콜카타', nameEn: 'Kolkata', timezone: 'Asia/Kolkata', lat: 22.57, lng: 88.36 },
+  { id: 'mumbai', nameKo: '뭄바이', nameEn: 'Mumbai', timezone: 'Asia/Kolkata', lat: 19.08, lng: 72.88 },
+  { id: 'newdelhi', nameKo: '뉴델리', nameEn: 'New Delhi', timezone: 'Asia/Kolkata', lat: 28.61, lng: 77.21 },
+  { id: 'karachi', nameKo: '카라치', nameEn: 'Karachi', timezone: 'Asia/Karachi', lat: 24.86, lng: 67.01 },
+  { id: 'dhaka', nameKo: '다카', nameEn: 'Dhaka', timezone: 'Asia/Dhaka', lat: 23.72, lng: 90.41 },
+  { id: 'colombo', nameKo: '콜롬보', nameEn: 'Colombo', timezone: 'Asia/Colombo', lat: 6.93, lng: 79.85 },
+  { id: 'kathmandu', nameKo: '카트만두', nameEn: 'Kathmandu', timezone: 'Asia/Kathmandu', lat: 27.71, lng: 85.31 },
+  { id: 'tashkent', nameKo: '타슈켄트', nameEn: 'Tashkent', timezone: 'Asia/Tashkent', lat: 41.30, lng: 69.24 },
+  { id: 'almaty', nameKo: '알마티', nameEn: 'Almaty', timezone: 'Asia/Almaty', lat: 43.25, lng: 76.95 },
+  { id: 'tehran', nameKo: '테헤란', nameEn: 'Tehran', timezone: 'Asia/Tehran', lat: 35.69, lng: 51.39 },
+  { id: 'dubai', nameKo: '두바이', nameEn: 'Dubai', timezone: 'Asia/Dubai', lat: 25.20, lng: 55.27 },
+  { id: 'riyadh', nameKo: '리야드', nameEn: 'Riyadh', timezone: 'Asia/Riyadh', lat: 24.69, lng: 46.72 },
+  { id: 'baghdad', nameKo: '바그다드', nameEn: 'Baghdad', timezone: 'Asia/Baghdad', lat: 33.34, lng: 44.40 },
+  { id: 'jerusalem', nameKo: '예루살렘', nameEn: 'Jerusalem', timezone: 'Asia/Jerusalem', lat: 31.77, lng: 35.22 },
+  { id: 'istanbul', nameKo: '이스탄불', nameEn: 'Istanbul', timezone: 'Europe/Istanbul', lat: 41.01, lng: 28.95 },
+  { id: 'sydney', nameKo: '시드니', nameEn: 'Sydney', timezone: 'Australia/Sydney', lat: -33.87, lng: 151.21 },
+  { id: 'melbourne', nameKo: '멜버른', nameEn: 'Melbourne', timezone: 'Australia/Melbourne', lat: -37.81, lng: 144.96 },
+  { id: 'brisbane', nameKo: '브리즈번', nameEn: 'Brisbane', timezone: 'Australia/Brisbane', lat: -27.47, lng: 153.02 },
+  { id: 'perth', nameKo: '퍼스', nameEn: 'Perth', timezone: 'Australia/Perth', lat: -31.95, lng: 115.86 },
+  { id: 'auckland', nameKo: '오클랜드', nameEn: 'Auckland', timezone: 'Pacific/Auckland', lat: -36.85, lng: 174.76 },
+  // Europe
+  { id: 'london', nameKo: '런던', nameEn: 'London', timezone: 'Europe/London', lat: 51.51, lng: -0.13 },
+  { id: 'paris', nameKo: '파리', nameEn: 'Paris', timezone: 'Europe/Paris', lat: 48.85, lng: 2.35 },
+  { id: 'berlin', nameKo: '베를린', nameEn: 'Berlin', timezone: 'Europe/Berlin', lat: 52.52, lng: 13.40 },
+  { id: 'madrid', nameKo: '마드리드', nameEn: 'Madrid', timezone: 'Europe/Madrid', lat: 40.42, lng: -3.70 },
+  { id: 'rome', nameKo: '로마', nameEn: 'Rome', timezone: 'Europe/Rome', lat: 41.90, lng: 12.50 },
+  { id: 'amsterdam', nameKo: '암스테르담', nameEn: 'Amsterdam', timezone: 'Europe/Amsterdam', lat: 52.37, lng: 4.90 },
+  { id: 'brussels', nameKo: '브뤼셀', nameEn: 'Brussels', timezone: 'Europe/Brussels', lat: 50.85, lng: 4.35 },
+  { id: 'zurich', nameKo: '취리히', nameEn: 'Zurich', timezone: 'Europe/Zurich', lat: 47.38, lng: 8.54 },
+  { id: 'vienna', nameKo: '빈', nameEn: 'Vienna', timezone: 'Europe/Vienna', lat: 48.21, lng: 16.37 },
+  { id: 'stockholm', nameKo: '스톡홀름', nameEn: 'Stockholm', timezone: 'Europe/Stockholm', lat: 59.33, lng: 18.07 },
+  { id: 'oslo', nameKo: '오슬로', nameEn: 'Oslo', timezone: 'Europe/Oslo', lat: 59.91, lng: 10.75 },
+  { id: 'copenhagen', nameKo: '코펜하겐', nameEn: 'Copenhagen', timezone: 'Europe/Copenhagen', lat: 55.68, lng: 12.57 },
+  { id: 'helsinki', nameKo: '헬싱키', nameEn: 'Helsinki', timezone: 'Europe/Helsinki', lat: 60.17, lng: 24.94 },
+  { id: 'warsaw', nameKo: '바르샤바', nameEn: 'Warsaw', timezone: 'Europe/Warsaw', lat: 52.23, lng: 21.01 },
+  { id: 'prague', nameKo: '프라하', nameEn: 'Prague', timezone: 'Europe/Prague', lat: 50.08, lng: 14.44 },
+  { id: 'budapest', nameKo: '부다페스트', nameEn: 'Budapest', timezone: 'Europe/Budapest', lat: 47.50, lng: 19.04 },
+  { id: 'bucharest', nameKo: '부쿠레슈티', nameEn: 'Bucharest', timezone: 'Europe/Bucharest', lat: 44.43, lng: 26.10 },
+  { id: 'athens', nameKo: '아테네', nameEn: 'Athens', timezone: 'Europe/Athens', lat: 37.98, lng: 23.73 },
+  { id: 'moscow', nameKo: '모스크바', nameEn: 'Moscow', timezone: 'Europe/Moscow', lat: 55.75, lng: 37.62 },
+  { id: 'kyiv', nameKo: '키이우', nameEn: 'Kyiv', timezone: 'Europe/Kyiv', lat: 50.45, lng: 30.52 },
+  // Americas
+  { id: 'newyork', nameKo: '뉴욕', nameEn: 'New York', timezone: 'America/New_York', lat: 40.71, lng: -74.01 },
+  { id: 'losangeles', nameKo: '로스앤젤레스', nameEn: 'Los Angeles', timezone: 'America/Los_Angeles', lat: 34.05, lng: -118.24 },
+  { id: 'chicago', nameKo: '시카고', nameEn: 'Chicago', timezone: 'America/Chicago', lat: 41.88, lng: -87.63 },
+  { id: 'toronto', nameKo: '토론토', nameEn: 'Toronto', timezone: 'America/Toronto', lat: 43.65, lng: -79.38 },
+  { id: 'vancouver', nameKo: '밴쿠버', nameEn: 'Vancouver', timezone: 'America/Vancouver', lat: 49.25, lng: -123.12 },
+  { id: 'mexico', nameKo: '멕시코시티', nameEn: 'Mexico City', timezone: 'America/Mexico_City', lat: 19.43, lng: -99.13 },
+  { id: 'saopaulo', nameKo: '상파울루', nameEn: 'São Paulo', timezone: 'America/Sao_Paulo', lat: -23.55, lng: -46.63 },
+  { id: 'buenosaires', nameKo: '부에노스아이레스', nameEn: 'Buenos Aires', timezone: 'America/Argentina/Buenos_Aires', lat: -34.60, lng: -58.38 },
+  { id: 'bogota', nameKo: '보고타', nameEn: 'Bogotá', timezone: 'America/Bogota', lat: 4.71, lng: -74.07 },
+  { id: 'lima', nameKo: '리마', nameEn: 'Lima', timezone: 'America/Lima', lat: -12.05, lng: -77.04 },
+  { id: 'santiago', nameKo: '산티아고', nameEn: 'Santiago', timezone: 'America/Santiago', lat: -33.46, lng: -70.65 },
+  // Africa
+  { id: 'cairo', nameKo: '카이로', nameEn: 'Cairo', timezone: 'Africa/Cairo', lat: 30.06, lng: 31.25 },
+  { id: 'lagos', nameKo: '라고스', nameEn: 'Lagos', timezone: 'Africa/Lagos', lat: 6.46, lng: 3.38 },
+  { id: 'nairobi', nameKo: '나이로비', nameEn: 'Nairobi', timezone: 'Africa/Nairobi', lat: -1.29, lng: 36.82 },
+  { id: 'johannesburg', nameKo: '요하네스버그', nameEn: 'Johannesburg', timezone: 'Africa/Johannesburg', lat: -26.20, lng: 28.04 },
+  { id: 'casablanca', nameKo: '카사블랑카', nameEn: 'Casablanca', timezone: 'Africa/Casablanca', lat: 33.59, lng: -7.62 },
+]

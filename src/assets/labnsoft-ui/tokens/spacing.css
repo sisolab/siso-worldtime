@@ -1,0 +1,45 @@
+/* LabnSoft Design Tokens — Spacing
+ *
+ * Philosophy: 4px base grid
+ * All spacing uses multiples of 4: 4, 8, 12, 16, 20, 24, 32
+ * Exception: 2px micro-spacing for dividers, tight icon gaps
+ *
+ * Padding ratio: vertical ≈ horizontal × 0.5–0.75
+ * - Tight:    4px  8px   (icons, tags)
+ * - Base:     8px  12px  (buttons, inputs)
+ * - Comfy:    12px 16px  (panels, cards)
+ * - Spacious: 16px 20px  (modal header/footer)
+ * - Page:     20px 24px  (modal body, sections)
+ */
+:root {
+  /* Base spacing scale (4px grid) */
+  --ln-space-1: 2px;
+  --ln-space-2: 4px;
+  --ln-space-3: 8px;
+  --ln-space-4: 12px;
+  --ln-space-5: 16px;
+  --ln-space-6: 20px;
+  --ln-space-7: 24px;
+  --ln-space-8: 32px;
+
+  /* Gap presets */
+  --ln-gap-tight: 2px;
+  --ln-gap-sm: 4px;
+  --ln-gap-base: 8px;
+  --ln-gap-lg: 12px;
+  --ln-gap-xl: 16px;
+
+  /* Padding presets */
+  --ln-pad-tight: 4px 8px;      /* icons, tags */
+  --ln-pad-base: 8px 12px;      /* buttons, inputs */
+  --ln-pad-comfy: 12px 16px;    /* panels, cards */
+  --ln-pad-spacious: 16px 20px; /* modal header/footer */
+  --ln-pad-page: 20px 24px;     /* modal body, sections */
+
+  /* Radius */
+  --ln-radius-sm: 4px;
+  --ln-radius-base: 6px;
+  --ln-radius-lg: 8px;
+  --ln-radius-xl: 12px;
+  --ln-radius-full: 50%;
+}

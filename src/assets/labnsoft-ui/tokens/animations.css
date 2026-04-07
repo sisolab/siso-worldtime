@@ -1,0 +1,71 @@
+/* LabnSoft Design Tokens — Animations
+ *
+ * Transition speed scale (3 tiers):
+ *   fast:     0.1s  — icon buttons, micro-interactions
+ *   base:     0.15s — tabs, cards, inputs, most UI elements
+ *   slow:     0.2s  — toggle switches, state changes
+ *
+ * Easing:
+ *   All CSS transitions use default ease.
+ *   JS height animations use linear (dynamic duration).
+ *
+ * Collapse/Expand (JS):
+ *   Duration = Math.max(80, element.height * 1.2) ms
+ *   Easing = linear
+ *   Overflow = hidden during animation
+ */
+:root {
+  /* Transition durations */
+  --ln-duration-fast: 0.1s;
+  --ln-duration-base: 0.15s;
+  --ln-duration-slow: 0.2s;
+
+  /* Transition presets */
+  --ln-transition-fast: all 0.1s;
+  --ln-transition-base: all 0.15s;
+  --ln-transition-slow: all 0.2s;
+  --ln-transition-bg: background 0.1s;
+  --ln-transition-border: border-color 0.15s;
+  --ln-transition-color: color 0.15s;
+
+  /* Collapse/Expand (reference values — applied via JS) */
+  --ln-collapse-min-ms: 80;
+  --ln-collapse-factor: 1.2;
+  --ln-collapse-easing: linear;
+}
+
+/* === Keyframes === */
+
+/* Cursor blink — text input indicators */
+@keyframes ln-blink {
+  50% { opacity: 0; }
+}
+
+/* Fade in */
+@keyframes ln-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide down (expand) */
+@keyframes ln-slide-down {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === Utility classes === */
+
+/* Animate backdrop appearance */
+.ln-animate-fade {
+  animation: ln-fade-in var(--ln-duration-slow) ease;
+}
+
+/* Animate dropdown/popover entry */
+.ln-animate-slide {
+  animation: ln-slide-down var(--ln-duration-slow) ease;
+}
+
+/* Blinking cursor */
+.ln-blink {
+  animation: ln-blink 1s step-end infinite;
+}

@@ -1,0 +1,22 @@
+/* LabnSoft Design Tokens — Typography */
+:root {
+  --ln-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ln-font-mono: monospace;
+
+  /* Font sizes */
+  --ln-text-2xs: 8px;
+  --ln-text-xs: 9px;
+  --ln-text-sm: 10px;
+  --ln-text-base: 11px;
+  --ln-text-md: 12px;
+  --ln-text-lg: 13px;
+  --ln-text-xl: 14px;
+  --ln-text-2xl: 15px;
+  --ln-text-3xl: 16px;
+
+  /* Font weights */
+  --ln-weight-normal: 400;
+  --ln-weight-medium: 500;
+  --ln-weight-semibold: 600;
+  --ln-weight-bold: 700;
+}

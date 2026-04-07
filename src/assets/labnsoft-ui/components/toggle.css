@@ -1,0 +1,106 @@
+/* LabnSoft Component — Toggle Switch */
+
+.ln-toggle {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.ln-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ln-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--ln-toggle-off);
+  border-radius: 11px;
+  transition: background var(--ln-duration-slow);
+}
+
+.ln-toggle-slider::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: var(--ln-radius-full);
+  transition: transform var(--ln-duration-slow);
+}
+
+.ln-toggle input:checked + .ln-toggle-slider {
+  background: var(--ln-toggle-on);
+}
+
+.ln-toggle input:checked + .ln-toggle-slider::before {
+  transform: translateX(18px);
+}
+
+/* === Y/N Toggle (labeled) === */
+.ln-toggle-yn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 48px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.ln-toggle-yn input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.ln-toggle-yn-track {
+  position: absolute;
+  inset: 0;
+  background: var(--ln-danger);
+  border-radius: 12px;
+  transition: background var(--ln-duration-slow);
+  display: flex;
+  align-items: center;
+}
+
+.ln-toggle-yn-track::before {
+  content: 'N';
+  position: absolute;
+  right: 7px;
+  font-family: var(--ln-font);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  transition: opacity var(--ln-duration-base);
+}
+
+.ln-toggle-yn-track::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: var(--ln-radius-full);
+  transition: transform var(--ln-duration-slow);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.ln-toggle-yn input:checked + .ln-toggle-yn-track {
+  background: #2e7d32;
+}
+
+.ln-toggle-yn input:checked + .ln-toggle-yn-track::before {
+  content: 'Y';
+  right: auto;
+  left: 7px;
+}
+
+.ln-toggle-yn input:checked + .ln-toggle-yn-track::after {
+  transform: translateX(24px);
+}

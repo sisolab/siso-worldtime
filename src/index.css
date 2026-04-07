@@ -1,0 +1,32 @@
+/* Map color variables */
+:root {
+  --app-bg: #f0f2f5;
+  --map-ocean: #1a2a4a;
+  --map-land: #2d4a6b;
+  --map-land-hover: #3a5a80;
+  --map-border: rgba(255, 255, 255, 0.15);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--app-bg);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

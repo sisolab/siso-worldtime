@@ -1,0 +1,84 @@
+/* App Layout */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg);
+  font-family: var(--ln-font);
+}
+
+.app-header {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--ln-border-light);
+  background: var(--ln-bg-frosted);
+  backdrop-filter: var(--ln-blur-sm);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.app-title {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.app-title-main {
+  font-size: var(--ln-text-3xl);
+  font-weight: var(--ln-weight-bold);
+  color: var(--ln-text-heading);
+  letter-spacing: -0.3px;
+}
+
+.app-title-sub {
+  font-size: var(--ln-text-sm);
+  color: var(--ln-text-tertiary);
+  font-weight: var(--ln-weight-normal);
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 24px 24px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.app-map-section {
+  flex: 1;
+  min-height: 360px;
+}
+
+.app-bars-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Toast */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: all;
+  padding: 10px 18px;
+  font-size: var(--ln-text-md);
+  color: var(--ln-text);
+  cursor: pointer;
+  animation: ln-slide-down 0.2s ease;
+  white-space: nowrap;
+}

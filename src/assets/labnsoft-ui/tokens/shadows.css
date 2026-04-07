@@ -1,0 +1,17 @@
+/* LabnSoft Design Tokens — Shadows & Effects */
+:root {
+  /* Shadows */
+  --ln-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --ln-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --ln-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+  /* Blur */
+  --ln-blur-sm: blur(8px);
+  --ln-blur-md: blur(12px);
+
+  /* Frosted Glass */
+  --ln-shadow-frosted: 0 8px 32px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  /* Backdrop */
+  --ln-backdrop-dim: rgba(0, 0, 0, 0.35);
+}

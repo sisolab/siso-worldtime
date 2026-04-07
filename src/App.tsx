@@ -1,0 +1,45 @@
+import { useEffect } from 'react'
+import WorldMap from './components/WorldMap'
+import TimeBar from './components/TimeBar'
+import { useWorldTimeStore } from './store/useWorldTimeStore'
+import './App.css'
+
+export default function App() {
+  const { tick, toasts, dismissToast } = useWorldTimeStore()
+
+  useEffect(() => {
+    const interval = setInterval(tick, 60 * 1000)
+    return () => clearInterval(interval)
+  }, [tick])
+
+  return (
+    <div className="app">
+      <header className="app-header">
+        <h1 className="app-title">
+          <span className="app-title-main">World Time</span>
+          <span className="app-title-sub">세계 시각</span>
+        </h1>
+      </header>
+
+      <main className="app-main">
+        <section className="app-map-section">
+          <WorldMap />
+        </section>
+
+        <section className="app-bars-section">
+          <TimeBar index={0} />
+          <TimeBar index={1} />
+          <TimeBar index={2} />
+        </section>
+      </main>
+
+      <div className="toast-container">
+        {toasts.map((toast) => (
+          <div key={toast.id} className="toast ln-frosted" onClick={() => dismissToast(toast.id)}>
+            {toast.message}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

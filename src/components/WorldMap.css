@@ -1,0 +1,66 @@
+.worldmap-container {
+  position: relative;
+  width: 100%;
+  background: var(--map-ocean);
+  border-radius: var(--ln-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--ln-shadow-md);
+}
+
+.city-marker {
+  transition: var(--ln-transition-base);
+  cursor: pointer;
+}
+
+.city-label {
+  font-family: var(--ln-font);
+  font-size: 9px;
+  font-weight: var(--ln-weight-medium);
+  fill: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  user-select: none;
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  display: flex;
+  gap: var(--ln-gap-lg);
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  border-radius: var(--ln-radius-base);
+  padding: 4px 10px;
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--ln-text-xs);
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--ln-font);
+}
+
+.map-legend-line {
+  display: inline-block;
+  width: 18px;
+  height: 2px;
+  background: var(--ln-primary);
+  border-radius: 1px;
+}
+
+.map-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.map-legend-dot.registered {
+  background: var(--ln-primary);
+  border-color: rgba(255, 255, 255, 0.9);
+}

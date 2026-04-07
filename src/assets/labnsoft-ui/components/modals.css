@@ -1,0 +1,154 @@
+/* LabnSoft Component — Modals
+ * 3 sizes: small (300px), medium (560px), large (900px)
+ * Structure: backdrop > dialog > header + body + footer
+ */
+
+/* === Backdrop === */
+.ln-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--ln-backdrop-dim);
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 60px;
+}
+
+/* === Dialog base (Frosted Glass) === */
+.ln-dialog {
+  background: var(--ln-bg);
+  backdrop-filter: var(--ln-blur-md);
+  -webkit-backdrop-filter: var(--ln-blur-md);
+  border: 1px solid var(--ln-border);
+  border-radius: var(--ln-radius-xl);
+  box-shadow: var(--ln-shadow-frosted);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(100vh - 120px);
+}
+
+/* Size variants */
+.ln-dialog-sm { width: 300px; }
+.ln-dialog-md { width: 560px; }
+.ln-dialog-lg { width: 620px; }
+.ln-dialog-xl { width: 900px; }
+
+/* === Header === */
+.ln-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ln-gap-lg);
+  padding: var(--ln-pad-spacious);
+  border-bottom: 1px solid var(--ln-border-light);
+}
+
+.ln-dialog-header h2 {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-3xl);
+  font-weight: var(--ln-weight-semibold);
+  color: var(--ln-text-heading);
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Header with search input */
+.ln-dialog-header .ln-search {
+  flex: 1;
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  padding: 8px 12px;
+  border: 1px solid var(--ln-border-input);
+  border-radius: var(--ln-radius-base);
+  outline: none;
+  transition: var(--ln-transition-border);
+}
+
+.ln-dialog-header .ln-search:focus {
+  border-color: var(--ln-primary);
+}
+
+/* === Body === */
+.ln-dialog-body {
+  padding: var(--ln-pad-page);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ln-gap-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Body with sidebar layout (Settings, Library style) */
+.ln-dialog-body-split {
+  display: grid;
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+.ln-dialog-body-split.two-col {
+  grid-template-columns: 160px 1fr;
+}
+
+.ln-dialog-body-split.wide-col {
+  grid-template-columns: 200px 1fr;
+}
+
+/* === Footer === */
+.ln-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ln-pad-comfy);
+  border-top: 1px solid var(--ln-border-light);
+}
+
+.ln-dialog-footer-right {
+  display: flex;
+  gap: var(--ln-gap-base);
+  margin-left: auto;
+}
+
+/* === Small modal (name input etc., Frosted Glass) === */
+.ln-modal-sm {
+  background: var(--ln-bg);
+  backdrop-filter: var(--ln-blur-md);
+  -webkit-backdrop-filter: var(--ln-blur-md);
+  border: 1px solid var(--ln-border);
+  border-radius: var(--ln-radius-xl);
+  padding: 20px;
+  box-shadow: var(--ln-shadow-frosted);
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ln-gap-lg);
+}
+
+.ln-modal-sm h3 {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-2xl);
+  font-weight: var(--ln-weight-semibold);
+  color: var(--ln-text-heading);
+  margin: 0;
+}
+
+.ln-modal-sm input {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-lg);
+  padding: 8px 12px;
+  border: 1px solid var(--ln-border-input);
+  border-radius: var(--ln-radius-base);
+  outline: none;
+}
+
+.ln-modal-sm input:focus {
+  border-color: var(--ln-primary);
+}
+
+.ln-modal-sm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ln-gap-base);
+}

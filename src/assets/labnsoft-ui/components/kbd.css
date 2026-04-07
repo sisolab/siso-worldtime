@@ -1,0 +1,14 @@
+/* LabnSoft Component — Keyboard Key */
+
+.ln-kbd {
+  font-family: var(--ln-font);
+  font-size: var(--ln-text-sm);
+  background: var(--ln-bg-hover);
+  border: 1px solid var(--ln-border-input);
+  border-radius: var(--ln-radius-sm);
+  padding: 2px 4px;
+  color: #444;
+  min-width: 20px;
+  text-align: center;
+  display: inline-block;
+}
