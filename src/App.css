@@ -9,9 +9,8 @@
 
 .app-header {
   padding: 12px 24px;
-  border-bottom: 1px solid var(--ln-border-light);
-  background: var(--ln-bg-frosted);
-  backdrop-filter: var(--ln-blur-sm);
+  border-bottom: none;
+  background: var(--app-bg);
   position: sticky;
   top: 0;
   z-index: 10;

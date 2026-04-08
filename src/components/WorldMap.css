@@ -2,9 +2,9 @@
   position: relative;
   width: 100%;
   height: 480px;
-  border-radius: var(--ln-radius-lg);
   overflow: hidden;
-  box-shadow: var(--ln-shadow-md);
+  border-radius: 12px;
+  border: 1px solid #000000;
 }
 
 /* City marker root — zero-size point at geographic coordinate */

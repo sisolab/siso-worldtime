@@ -21,14 +21,11 @@ const MAP_STYLE: any = {
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   layers: [
     { id: 'background', type: 'background', paint: { 'background-color': '#e8f4f0' } },
-    { id: 'water-fill', type: 'fill', source: 'openmaptiles', 'source-layer': 'water',
-      paint: { 'fill-color': '#e8f4f0' } },
-    { id: 'coastline', type: 'line', source: 'openmaptiles', 'source-layer': 'water',
-      paint: { 'line-color': 'rgba(0,0,0,0.25)', 'line-width': 0.5 } },
   ],
 }
 const ADMIN1_URL = '/ne_admin1.geojson'
 const TZ_BOUNDS_URL = '/tz-boundaries.geojson'
+const COASTLINE_URL = '/coastline.geojson'
 
 const REPRESENTATIVE_CITY_IDS = new Set([
   'seoul', 'tokyo', 'beijing',
@@ -36,8 +33,8 @@ const REPRESENTATIVE_CITY_IDS = new Set([
   'mumbai', 'dubai',
   'moscow',
   'london', 'paris',
-  'cairo', 'nairobi', 'johannesburg',
-  'newyork', 'chicago', 'losangeles',
+  'cairo', 'johannesburg',
+  'newyork', 'losangeles',
   'saopaulo', 'buenosaires',
   'sydney',
 ])
@@ -196,9 +193,9 @@ export default function WorldMap() {
           ],
         }}>
           <Layer id="prime-meridian" type="line" filter={['==', ['get', 'type'], 'prime']}
-            paint={{ 'line-color': 'rgba(30,70,180,0.4)', 'line-width': 1.5 }} />
+            paint={{ 'line-color': 'rgba(30,70,180,0.4)', 'line-width': 1.5, 'line-dasharray': [2, 2] }} />
           <Layer id="date-line" type="line" filter={['==', ['get', 'type'], 'dateline']}
-            paint={{ 'line-color': 'rgba(180,120,30,0.5)', 'line-width': 2, 'line-dasharray': [4, 2] }} />
+            paint={{ 'line-color': 'rgba(180,120,30,0.5)', 'line-width': 2, 'line-dasharray': [2, 2] }} />
         </Source>
 
         {/* Admin-1 timezone fill */}
@@ -207,6 +204,15 @@ export default function WorldMap() {
             id="admin1-fill"
             type="fill"
             paint={{ 'fill-color': ['get', 'tzColor'], 'fill-opacity': 1 }}
+          />
+        </Source>
+
+        {/* Coastline — all land merged, only sea-land boundary */}
+        <Source id="coastline" type="geojson" data={COASTLINE_URL}>
+          <Layer
+            id="coastline-line"
+            type="line"
+            paint={{ 'line-color': 'rgba(0,0,0,0.2)', 'line-width': 1.5 }}
           />
         </Source>
 
@@ -225,7 +231,7 @@ export default function WorldMap() {
           <Layer
             id="tz-boundary-lines"
             type="line"
-            paint={{ 'line-color': '#ffffff', 'line-width': 1, 'line-dasharray': [3, 2] }}
+            paint={{ 'line-color': '#ffffff', 'line-width': 1, 'line-dasharray': [2, 2] }}
           />
         </Source>
 

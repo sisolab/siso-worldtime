@@ -157,9 +157,15 @@ function getOffsetHours(tz) {
   } catch { return 0; }
 }
 
+// Date line(UTC+12) = red(0°) → rainbow → opposite(UTC-12) = purple(300°)
+// Alternating lightness for adjacent contrast
 function fillColor(tz) {
-  const h = ((getOffsetHours(tz)+12)/26)*360;
-  return 'hsl('+Math.round(h)+',70%,45%)';
+  const offset = getOffsetHours(tz);
+  const h = ((12 - offset) / 24) * 300;  // +12→0°(red), +0→150°(green), -12→300°(purple)
+  const isOdd = Math.abs(Math.round(offset)) % 2 !== 0;
+  const l = isOdd ? 48 : 68;
+  const s = isOdd ? 50 : 55;
+  return 'hsl('+Math.round(h)+','+s+'%,'+l+'%)';
 }
 
 let colored = 0, uncolored = [];
@@ -190,12 +196,21 @@ for (const g of topoGeoms) {
   groups[c].push(g);
 }
 
+let totalInGroups = 0;
+for (const g of Object.values(groups)) totalInGroups += g.length;
+console.log('Geometries in groups:', totalInGroups, '/ total:', topoGeoms.length);
+
 const mergedFeatures = [];
 for (const [color, geomGroup] of Object.entries(groups)) {
   const merged = topojson.merge(topo, geomGroup);
+  // Fallback: unmatched areas get background-like color so they're not visible as holes
+  let finalColor = color;
+  if (!color || color === 'undefined' || color === '#e0e0e0') {
+    finalColor = 'hsl(160,20%,75%)';  // matches background tone
+  }
   mergedFeatures.push({
     type: 'Feature',
-    properties: { tzColor: color },
+    properties: { tzColor: finalColor },
     geometry: merged,
   });
 }
@@ -232,3 +247,13 @@ const boundaryGeoJson = {
 fs.writeFileSync('./public/tz-boundaries.geojson', JSON.stringify(boundaryGeoJson));
 const sizeMB = (fs.statSync('./public/tz-boundaries.geojson').size / 1024 / 1024).toFixed(2);
 console.log('Timezone boundaries:', sizeMB, 'MB');
+
+// ── Step 3: Generate coastline (merge ALL land into one polygon) ────────────
+const allLand = topojson.merge(topo, geoms);
+const coastlineGeoJson = {
+  type: 'FeatureCollection',
+  features: [{ type: 'Feature', properties: {}, geometry: allLand }],
+};
+fs.writeFileSync('./public/coastline.geojson', JSON.stringify(coastlineGeoJson));
+const coastSize = (fs.statSync('./public/coastline.geojson').size / 1024 / 1024).toFixed(2);
+console.log('Coastline:', coastSize, 'MB');
