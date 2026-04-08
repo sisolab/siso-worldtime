@@ -28,10 +28,10 @@
 }
 
 .city-ml-dot--active {
-  width: 13px;
-  height: 13px;
-  background: #4A90D9;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(74, 144, 217, 0.3);
+  width: 14px;
+  height: 14px;
+  background: #1a73e8;
+  box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3), 0 0 8px rgba(26, 115, 232, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .city-ml-root:hover .city-ml-dot {
@@ -54,8 +54,9 @@
 }
 
 .city-ml-root.active .city-ml-label {
-  background: #4A90D9;
-  border-color: #4A90D9;
+  background: #1a73e8;
+  border-color: #1a73e8;
+  box-shadow: 0 0 6px rgba(26, 115, 232, 0.4);
 }
 
 .city-ml-root.active .city-ml-name,
@@ -64,7 +65,8 @@
 }
 
 .worldmap-wrapper {
-  width: 100%;
+  width: 900px;
+  margin: 0 auto;
 }
 
 .bottom-panel {
@@ -169,6 +171,7 @@
   padding: 8px 0;
   font-family: var(--ln-font-mono);
   font-size: 11px;
+  font-weight: var(--ln-weight-bold);
   color: #000;
   position: relative;
 }
@@ -191,7 +194,6 @@
 
 .city-timebar-cell.hour-night {
   background: rgba(0,0,20,0.1);
-  color: #000;
 }
 
 .city-timebar-cell.hour-morning {
@@ -244,6 +246,10 @@
   font-weight: var(--ln-weight-bold);
   color: #000;
   text-align: center;
+}
+
+.city-timebar-cell.biz-hour {
+  border-bottom: 3px solid #1a73e8;
 }
 
 .city-timebar-cell.col-hover {

@@ -380,7 +380,7 @@ export default function WorldMap() {
                 {hours.map((h, j) => (
                   <div
                     key={j}
-                    className={`city-timebar-cell${h === currentHour ? ' current' : ''}${hoverCol === j ? ' col-hover' : ''} hour-${Math.round(h) < 6 ? 'night' : Math.round(h) < 12 ? 'morning' : Math.round(h) < 18 ? 'afternoon' : 'evening'}`}
+                    className={`city-timebar-cell${h === currentHour ? ' current' : ''}${hoverCol === j ? ' col-hover' : ''}${Math.round(h) >= 9 && Math.round(h) <= 17 ? ' biz-hour' : ''} hour-${Math.round(h) < 6 ? 'night' : Math.round(h) < 12 ? 'morning' : Math.round(h) < 18 ? 'afternoon' : 'evening'}`}
                     onMouseEnter={() => setHoverCol(j)}
                     onMouseLeave={() => setHoverCol(null)}
                   >

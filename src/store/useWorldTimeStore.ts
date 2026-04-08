@@ -1,5 +1,29 @@
 import { create } from 'zustand'
 import type { City } from '../data/cities'
+import { CITIES } from '../data/cities'
+
+const emptyBar = (): BarState => ({ city: null })
+
+// Persist selected city IDs to localStorage
+function saveBars(bars: BarState[]) {
+  const ids = bars.map(b => b.city?.id ?? null)
+  localStorage.setItem('worldtime-cities', JSON.stringify(ids))
+}
+
+function loadBars(): [BarState, BarState, BarState] {
+  try {
+    const stored = localStorage.getItem('worldtime-cities')
+    if (!stored) return [emptyBar(), emptyBar(), emptyBar()]
+    const ids = JSON.parse(stored) as (string | null)[]
+    return ids.map(id => {
+      if (!id) return emptyBar()
+      const city = CITIES.find(c => c.id === id) ?? null
+      return { city }
+    }).slice(0, 3) as [BarState, BarState, BarState]
+  } catch {
+    return [emptyBar(), emptyBar(), emptyBar()]
+  }
+}
 
 export type ActiveMode =
   | { type: 'none' }
@@ -29,8 +53,6 @@ interface WorldTimeStore {
   dismissToast: (id: number) => void
 }
 
-const emptyBar = (): BarState => ({ city: null })
-
 let toastCounter = 0
 
 function showToast(get: () => WorldTimeStore, set: (s: Partial<WorldTimeStore>) => void, message: string) {
@@ -42,7 +64,7 @@ function showToast(get: () => WorldTimeStore, set: (s: Partial<WorldTimeStore>) 
 }
 
 export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
-  bars: [emptyBar(), emptyBar(), emptyBar()],
+  bars: loadBars(),
   activeMode: { type: 'none' },
   now: new Date(),
   toasts: [],
@@ -66,6 +88,7 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
     const emptyIndex = bars.findIndex((b) => b.city === null)
     bars[emptyIndex] = { city }
     set({ bars })
+    saveBars(bars)
   },
 
   moveBarUp(index: number) {
@@ -74,6 +97,7 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
     // Move to first position (swap with index 0)
     ;[bars[0], bars[index]] = [bars[index], bars[0]]
     set({ bars })
+    saveBars(bars)
   },
 
   removeBar(index: number) {
@@ -90,6 +114,7 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
     }
 
     set({ bars, activeMode })
+    saveBars(bars)
   },
 
   setActiveMode(mode: ActiveMode) {
