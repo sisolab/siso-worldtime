@@ -192,9 +192,9 @@
 }
 
 .city-timebar-tz {
-  font-family: var(--ln-font-mono);
-  font-size: 9px;
-  color: #888;
+  font-family: var(--ln-font);
+  font-size: 11px;
+  color: #222;
   line-height: 1.2;
 }
 

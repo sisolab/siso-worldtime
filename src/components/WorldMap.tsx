@@ -56,8 +56,8 @@ const REPRESENTATIVE_CITY_IDS = new Set([
 
 // ── Label placement: candidate-based with global iteration ──────────────────
 const D = 12        // distance from dot to label edge
-const LW = 58       // label width (10px font, ~6-7 chars + padding)
-const LH = 34       // label height (10px×2 lines×1.3 + 8px padding)
+const LW = 62       // label width (11px font + padding)
+const LH = 48       // label height (11px×3 lines×1.3 + 8px padding)
 const DOT_SZ = 10   // dot collision size (matches CSS)
 
 function getCityTime(timezone: string, now: Date): string {
@@ -122,19 +122,26 @@ export default function WorldMap() {
     if (!map) return
 
     setTimeout(() => {
-      // Project all cities to screen coordinates
-      const projected = repCities.map(c => ({
-        id: c.id,
-        x: map.project([c.lng, c.lat]).x,
-        y: map.project([c.lng, c.lat]).y,
-      }))
+      // Measure actual label sizes from DOM
+      const labelEls = document.querySelectorAll('.city-ml-label')
+      const sizes: Record<string, { w: number; h: number }> = {}
+      labelEls.forEach(el => {
+        const name = el.querySelector('.city-ml-name')?.textContent ?? ''
+        const rect = el.getBoundingClientRect()
+        sizes[name] = { w: rect.width, h: rect.height }
+      })
+
+      const projected = repCities.map(c => {
+        const p = map.project([c.lng, c.lat])
+        const sz = sizes[c.nameEn] ?? { w: LW, h: LH }
+        return { id: c.id, name: c.nameEn, x: p.x, y: p.y, w: sz.w, h: sz.h }
+      })
 
       const above = new Set<string>()
 
-      // Label box for a city: returns [left, top, right, bottom]
       function labelBox(p: typeof projected[0], isAbove: boolean): [number, number, number, number] {
-        const top = isAbove ? p.y - D - LH : p.y + D
-        return [p.x - LW / 2, top, p.x + LW / 2, top + LH]
+        const top = isAbove ? p.y - D - p.h : p.y + D
+        return [p.x - p.w / 2, top, p.x + p.w / 2, top + p.h]
       }
 
       function boxesOverlap(a: [number, number, number, number], b: [number, number, number, number]) {
@@ -146,48 +153,39 @@ export default function WorldMap() {
                box[1] < dotY + DOT_SZ / 2 && box[3] > dotY - DOT_SZ / 2
       }
 
-      // Pass 1: find overlapping "below" labels or labels covering other dots
-      for (let i = 0; i < projected.length; i++) {
-        if (above.has(projected[i].id)) continue
-        for (let j = i + 1; j < projected.length; j++) {
-          if (above.has(projected[j].id)) continue
-          const boxA = labelBox(projected[i], false)
-          const boxB = labelBox(projected[j], false)
-          // Check label-label overlap OR label covering another dot
-          const labelsOverlap = boxesOverlap(boxA, boxB)
-          const aHitsJDot = hitsDot(boxA, projected[j].x, projected[j].y)
-          const bHitsIDot = hitsDot(boxB, projected[i].x, projected[i].y)
-          if (labelsOverlap || aHitsJDot || bHitsIDot) {
-            // Move the one whose "above" doesn't hit any other dot
-            const bAbove = labelBox(projected[j], true)
-            const bAboveHitsAny = projected.some(p => p.id !== projected[j].id && hitsDot(bAbove, p.x, p.y))
-            if (!bAboveHitsAny) {
-              above.add(projected[j].id)
-            } else {
-              above.add(projected[i].id)
+      // Iterative: keep resolving overlaps until stable
+      for (let pass = 0; pass < 10; pass++) {
+        let changed = false
+        for (let i = 0; i < projected.length; i++) {
+          for (let j = i + 1; j < projected.length; j++) {
+            const boxA = labelBox(projected[i], above.has(projected[i].id))
+            const boxB = labelBox(projected[j], above.has(projected[j].id))
+            const overlap = boxesOverlap(boxA, boxB)
+            const aHitsJDot = hitsDot(labelBox(projected[i], above.has(projected[i].id)), projected[j].x, projected[j].y)
+            const bHitsIDot = hitsDot(labelBox(projected[j], above.has(projected[j].id)), projected[i].x, projected[i].y)
+
+            if (overlap || aHitsJDot || bHitsIDot) {
+              // Try flipping one that isn't already flipped
+              if (!above.has(projected[j].id)) {
+                const bAbove = labelBox(projected[j], true)
+                if (!projected.some(p => p.id !== projected[j].id && hitsDot(bAbove, p.x, p.y))) {
+                  above.add(projected[j].id); changed = true; continue
+                }
+              }
+              if (!above.has(projected[i].id)) {
+                const aAbove = labelBox(projected[i], true)
+                if (!projected.some(p => p.id !== projected[i].id && hitsDot(aAbove, p.x, p.y))) {
+                  above.add(projected[i].id); changed = true; continue
+                }
+              }
             }
           }
         }
-      }
-
-      // Pass 2: check above labels don't overlap each other or below labels
-      for (let i = 0; i < projected.length; i++) {
-        if (!above.has(projected[i].id)) continue
-        for (let j = 0; j < projected.length; j++) {
-          if (i === j) continue
-          const boxA = labelBox(projected[i], true)
-          const boxB = labelBox(projected[j], above.has(projected[j].id))
-          if (boxesOverlap(boxA, boxB)) {
-            // Conflict — try swapping: put i back below, j above
-            above.delete(projected[i].id)
-            above.add(projected[j].id)
-            break
-          }
-        }
+        if (!changed) break
       }
 
       setAboveCities(above)
-    }, 300)
+    }, 500)  // slightly longer delay to ensure labels rendered
   }, [repCities])
 
   const registeredCityIds = useMemo(
