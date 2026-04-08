@@ -34,6 +34,14 @@
   box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.3), 0 0 8px rgba(26, 115, 232, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.city-ml-tz {
+  font-family: var(--ln-font-mono);
+  font-size: 11px;
+  font-weight: var(--ln-weight-semibold);
+  color: #333;
+  line-height: 1.3;
+}
+
 .city-ml-root:hover .city-ml-dot {
   transform: translate(-50%, -50%) scale(1.3);
   background: #c5dffc;
@@ -47,7 +55,8 @@
 }
 
 .city-ml-root:hover .city-ml-name,
-.city-ml-root:hover .city-ml-time {
+.city-ml-root:hover .city-ml-time,
+.city-ml-root:hover .city-ml-tz {
   color: #333;
 }
 
@@ -79,7 +88,8 @@
 }
 
 .city-ml-root.active:hover .city-ml-name,
-.city-ml-root.active:hover .city-ml-time {
+.city-ml-root.active:hover .city-ml-time,
+.city-ml-root.active:hover .city-ml-tz {
   color: #ffffff;
 }
 
@@ -90,7 +100,8 @@
 }
 
 .city-ml-root.active .city-ml-name,
-.city-ml-root.active .city-ml-time {
+.city-ml-root.active .city-ml-time,
+.city-ml-root.active .city-ml-tz {
   color: #ffffff;
 }
 
@@ -164,15 +175,27 @@
   color: #bbb;
 }
 
+.city-timebar-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 70px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
 .city-timebar-name {
   font-family: var(--ln-font);
   font-size: 11px;
   font-weight: var(--ln-weight-semibold);
   color: #222;
-  min-width: 70px;
-  flex-shrink: 0;
-  text-align: left;
-  padding-bottom: 8px;
+  line-height: 1.2;
+}
+
+.city-timebar-tz {
+  font-family: var(--ln-font-mono);
+  font-size: 9px;
+  color: #888;
+  line-height: 1.2;
 }
 
 .city-timebar-time {
@@ -259,15 +282,8 @@
   font-family: var(--ln-font-mono);
   font-size: 10px;
   font-weight: var(--ln-weight-bold);
+  color: #000;
   text-align: center;
-}
-
-.date-marker-cell.has-diff.plus {
-  color: #4A90D9;
-}
-
-.date-marker-cell.has-diff.minus {
-  color: #e74c3c;
 }
 
 .date-marker-cell.has-date {
@@ -281,12 +297,12 @@
 .city-timebar-cell.date-change::after {
   content: '';
   position: absolute;
-  left: -1px;
+  left: -2px;
   top: 10%;
   height: 80%;
-  width: 3px;
+  width: 5px;
   background: #e74c3c;
-  border-radius: 1px;
+  border-radius: 3px;
 }
 
 .city-timebar-cell.biz-hour {

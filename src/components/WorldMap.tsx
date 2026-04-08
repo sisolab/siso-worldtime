@@ -28,6 +28,21 @@ const ADMIN1_URL = '/ne_admin1.geojson'
 const TZ_BOUNDS_URL = '/tz-boundaries.geojson'
 const COASTLINE_URL = '/coastline.geojson'
 
+// Manual timezone abbreviation map (Intl often returns GMT+N instead of names)
+const TZ_ABBR_MAP: Record<string, string> = {
+  'America/Los_Angeles': 'PST/PDT',
+  'America/New_York': 'EST/EDT',
+  'America/Chicago': 'CST/CDT',
+  'Europe/London': 'GMT/BST',
+  'Europe/Paris': 'CET/CEST',
+  'Europe/Moscow': 'MSK',
+  'Asia/Tokyo': 'JST',
+  'Asia/Shanghai': 'CST',
+  'Asia/Singapore': 'SGT',
+  'Asia/Kolkata': 'IST',
+  'Australia/Sydney': 'AEST/AEDT',
+}
+
 const REPRESENTATIVE_CITY_IDS = new Set([
   'tokyo', 'beijing',
   'singapore', 'bangkok',
@@ -298,7 +313,9 @@ export default function WorldMap() {
           const timeStr = getCityTime(city.timezone, activeTime)
           const isAbove = aboveCities.has(city.id)
           const lineY = isAbove ? -D : D
-          const labelY = isAbove ? -(D + LH) : D
+          const labelTransform = isAbove
+            ? `translate(-50%, calc(-100% - ${D}px))`
+            : `translate(-50%, ${D}px)`
           return (
             <Marker key={city.id} longitude={city.lng} latitude={city.lat} style={{ overflow: 'visible' }}>
               <div className={`city-ml-root${isRegistered ? ' active' : ''}`} onClick={() => toggleCity(city)}>
@@ -311,9 +328,10 @@ export default function WorldMap() {
                 {/* Label box */}
                 <div
                   className="city-ml-label"
-                  style={{ transform: `translate(-50%, ${labelY}px)` }}
+                  style={{ transform: labelTransform }}
                 >
                   <span className="city-ml-name">{city.nameEn}</span>
+                  {TZ_ABBR_MAP[city.timezone] && <span className="city-ml-tz">({TZ_ABBR_MAP[city.timezone]})</span>}
                   <span className="city-ml-time">{timeStr}</span>
                 </div>
               </div>
@@ -333,7 +351,7 @@ export default function WorldMap() {
     {(() => {
       const firstIdx = 0  // always slot 0
       const firstCity = bars[0].city
-      const allHours = Array.from({ length: 24 }, (_, i) => i)  // 0-23
+      const allHours = Array.from({ length: 24 }, (_, i) => i)
 
       function renderBar(_barIdx: number, city: NonNullable<typeof firstCity>, _isFirst: boolean) {
         const currentHour = getCurrentHour(city.timezone, activeTime)
@@ -350,7 +368,10 @@ export default function WorldMap() {
         return (
           <div className="city-timebar">
 
-            <span className="city-timebar-name">{city.nameEn}</span>
+            <div className="city-timebar-info">
+              <span className="city-timebar-name">{city.nameEn}</span>
+              <span className="city-timebar-tz">{TZ_ABBR_MAP[city.timezone] ?? ''}</span>
+            </div>
             <div className="city-timebar-bar-wrap">
               {/* Date markers row above the bar */}
               <div className="city-timebar-dates">
@@ -362,7 +383,7 @@ export default function WorldMap() {
                     const refDate = new Date(activeTime.toLocaleString('en-US', { timeZone: firstCity?.timezone ?? city.timezone }))
                     let day = refDate.getDate()
                     if (!_isFirst && firstCity) {
-                      const diff = getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity.timezone)
+                      const diff = getUtcOffsetHours(city.timezone, activeTime) - getUtcOffsetHours(firstCity.timezone, activeTime)
                       if (diff > 0) day = day + 1
                     }
                     const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
@@ -371,7 +392,7 @@ export default function WorldMap() {
                   // Show date above first cell (position 0) for non-reference bars
                   if (!_isFirst && j === 0 && h !== currentHour) {
                     const refDate = new Date(activeTime.toLocaleString('en-US', { timeZone: firstCity?.timezone ?? city.timezone }))
-                    const diff = getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity!.timezone)
+                    const diff = getUtcOffsetHours(city.timezone, activeTime) - getUtcOffsetHours(firstCity!.timezone)
                     let day = refDate.getDate()
                     if (diff < 0) day = day  // behind: first cell might be previous day
                     // The first cell shows the hour that maps to reference hour 0
@@ -382,7 +403,7 @@ export default function WorldMap() {
                     return <div key={j} className="date-marker-cell has-date">{day}{suffix}</div>
                   }
                   if (!_isFirst && firstCity && h === currentHour) {
-                    const diff = Math.round(getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity.timezone))
+                    const diff = Math.round(getUtcOffsetHours(city.timezone, activeTime) - getUtcOffsetHours(firstCity.timezone, activeTime))
                     const sign = diff >= 0 ? '+' : ''
                     return <div key={j} className={`date-marker-cell has-diff ${diff >= 0 ? 'plus' : 'minus'}`}>{sign}{diff}h</div>
                   }
@@ -436,7 +457,7 @@ export default function WorldMap() {
                       className={`date-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}${isWeekend ? ' weekend' : ''}`}
                       onClick={() => {
                         const tz = firstCity?.timezone ?? 'UTC'
-                        const offset = getUtcOffsetHours(tz)
+                        const offset = getUtcOffsetHours(tz, activeTime)
                         const currentLocal = new Date(now.toLocaleString('en-US', { timeZone: tz }))
                         setCustomTime(new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), currentLocal.getHours() - offset, currentLocal.getMinutes())))
                       }}
