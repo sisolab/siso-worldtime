@@ -82,7 +82,7 @@
 
 .city-timebar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 8px;
 }
 
@@ -99,14 +99,14 @@
 
 
 .city-timebar-remove {
-  background: #e74c3c;
+  background: #f0a0a0;
   border: none;
-  font-size: 12px;
+  font-size: 11px;
   color: #ffffff;
   cursor: pointer;
-  width: 20px;
-  align-self: stretch;
-  border-radius: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,12 +115,13 @@
 }
 
 .city-timebar-remove:hover {
-  background: #c0392b;
+  background: #e07070;
 }
 
 .city-timebar.empty {
   justify-content: center;
-  padding: 12px;
+  align-items: center;
+  min-height: 50px;
   border: 1px dashed rgba(0,0,0,0.1);
   border-radius: 8px;
 }
@@ -138,6 +139,8 @@
   color: #222;
   min-width: 70px;
   flex-shrink: 0;
+  text-align: left;
+  padding-bottom: 8px;
 }
 
 .city-timebar-time {
@@ -166,7 +169,7 @@
   padding: 8px 0;
   font-family: var(--ln-font-mono);
   font-size: 11px;
-  color: #888;
+  color: #000;
   position: relative;
 }
 
@@ -184,6 +187,69 @@
 .city-timebar-cell.current + .city-timebar-cell::before,
 .city-timebar-cell + .city-timebar-cell.current::before {
   background: transparent;
+}
+
+.city-timebar-cell.hour-night {
+  background: rgba(0,0,20,0.1);
+  color: #000;
+}
+
+.city-timebar-cell.hour-morning {
+  background: rgba(200,170,80,0.08);
+}
+
+.city-timebar-cell.hour-afternoon {
+  background: rgba(200,170,80,0.15);
+}
+
+.city-timebar-cell.hour-evening {
+  background: rgba(0,0,30,0.06);
+}
+
+.city-timebar-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.city-timebar-dates {
+  display: flex;
+  height: 20px;
+  align-items: flex-end;
+  padding-bottom: 2px;
+}
+
+.date-marker-cell {
+  flex: 1;
+}
+
+.date-marker-cell.has-diff {
+  font-family: var(--ln-font-mono);
+  font-size: 10px;
+  font-weight: var(--ln-weight-bold);
+  text-align: center;
+}
+
+.date-marker-cell.has-diff.plus {
+  color: #4A90D9;
+}
+
+.date-marker-cell.has-diff.minus {
+  color: #e74c3c;
+}
+
+.date-marker-cell.has-date {
+  font-family: var(--ln-font-mono);
+  font-size: 10px;
+  font-weight: var(--ln-weight-bold);
+  color: #000;
+  text-align: center;
+}
+
+.city-timebar-cell.col-hover {
+  background: rgba(74, 144, 217, 0.15) !important;
+  color: #1D4ED8 !important;
+  font-weight: var(--ln-weight-bold);
 }
 
 .city-timebar-cell.current {
@@ -384,9 +450,9 @@
   font-family: var(--ln-font-mono);
   font-size: 11px;
   font-weight: var(--ln-weight-bold);
-  color: #1D4ED8;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.75);
+  border: none;
   border-bottom: none;
   padding: 6px 20px 16px;
   border-radius: 6px 6px 0 0;

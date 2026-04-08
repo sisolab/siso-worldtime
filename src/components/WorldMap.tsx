@@ -59,14 +59,14 @@ export default function WorldMap() {
   const mapRef = useRef<MapRef>(null)
   const [aboveCities, setAboveCities] = useState<Set<string>>(new Set())
   const [showCities, setShowCities] = useState(true)
-  const [timeMode, setTimeMode] = useState<'normal' | 'business'>('normal')
   const [customTime, setCustomTime] = useState<Date | null>(null)
+  const [hoverCol, setHoverCol] = useState<number | null>(null)
   const [dateOffset, setDateOffset] = useState(0)  // scroll offset for date strip
   const activeTime = customTime ?? now
 
   // Night zones based on current UTC time
   const nightGeoJson = useMemo((): GeoJSON.FeatureCollection => {
-    const utcH = now.getUTCHours() + now.getUTCMinutes() / 60
+    const utcH = activeTime.getUTCHours() + activeTime.getUTCMinutes() / 60
 
     function makeZone(startHour: number, endHour: number, zone: string): GeoJSON.Feature[] {
       // Local time startHour → endHour covers these longitudes
@@ -276,10 +276,10 @@ export default function WorldMap() {
         {showCities && <>
         {/* Date change tab */}
         {(() => {
-          const utcH = now.getUTCHours() + now.getUTCMinutes() / 60
+          const utcH = activeTime.getUTCHours() + activeTime.getUTCMinutes() / 60
           const midLng = ((0 - utcH) * 15 + 540) % 360 - 180
           const westOffsetH = Math.round((midLng - 7.5) / 15)
-          const westLocal = new Date(now.getTime() + westOffsetH * 3600000)
+          const westLocal = new Date(activeTime.getTime() + westOffsetH * 3600000)
           const eastLocal = new Date(westLocal.getTime() + 86400000)
           const fmt = (d: Date) => {
             const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -331,43 +331,64 @@ export default function WorldMap() {
 
     {/* Bottom panels */}
     {(() => {
-      const firstIdx = bars.findIndex(b => b.city)
-      const firstCity = firstIdx >= 0 ? bars[firstIdx].city! : null
-      const refHour = firstCity ? getCurrentHour(firstCity.timezone, activeTime) : 12
-      const defaultHours = Array.from({ length: 13 }, (_, i) => (refHour - 6 + i + 24) % 24)
-      const bizHours = [9,10,11,12,13,14,15,16,17,18]
+      const firstIdx = 0  // always slot 0
+      const firstCity = bars[0].city
+      const allHours = Array.from({ length: 24 }, (_, i) => i)  // 0-23
 
-      function renderBar(barIdx: number, city: NonNullable<typeof firstCity>, isFirst: boolean) {
+      function renderBar(_barIdx: number, city: NonNullable<typeof firstCity>, _isFirst: boolean) {
         const currentHour = getCurrentHour(city.timezone, activeTime)
         let hours: number[]
-        let dateDiffs: number[] = []
 
-        const refHours = timeMode === 'business' ? bizHours : defaultHours
-        if (isFirst || !firstCity) {
-          hours = refHours
+        if (_isFirst || !firstCity) {
+          hours = allHours
         } else {
-          const diff = getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity.timezone)
-          hours = refHours.map(h => ((h + diff) % 24 + 24) % 24)
-          dateDiffs = refHours.map(h => {
-            const mapped = h + diff
-            if (mapped >= 24) return 1
-            if (mapped < 0) return -1
-            return 0
-          })
+          const refHour = getCurrentHour(firstCity.timezone, activeTime)
+          const diff = currentHour - refHour
+          hours = allHours.map(h => ((h + diff + 24) % 24))
         }
 
         return (
           <div className="city-timebar">
 
             <span className="city-timebar-name">{city.nameEn}</span>
-            <div className="city-timebar-hours">
-              {hours.map((h, j) => (
-                <div key={j} className={`city-timebar-cell${h === currentHour ? ' current' : ''}${timeMode === 'business' && isFirst ? ' biz' : ''}${dateDiffs[j] ? ' next-day' : ''}`}>
-                  {String(Math.round(h)).padStart(2, '0')}
-                </div>
-              ))}
+            <div className="city-timebar-bar-wrap">
+              {/* Date markers row above the bar */}
+              <div className="city-timebar-dates">
+                {hours.map((h, j) => {
+                  // Show date above 00, or time diff above current hour (for non-first bars)
+                  if (Math.round(h) === 0) {
+                    // For reference: 00 = start of active date
+                    // For others: 00 = start of (active date + 1) if ahead, same date if behind
+                    const refDate = new Date(activeTime.toLocaleString('en-US', { timeZone: firstCity?.timezone ?? city.timezone }))
+                    let day = refDate.getDate()
+                    if (!_isFirst && firstCity) {
+                      const diff = getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity.timezone)
+                      if (diff > 0) day = day + 1
+                    }
+                    const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
+                    return <div key={j} className="date-marker-cell has-date">{day}{suffix}</div>
+                  }
+                  if (!_isFirst && firstCity && h === currentHour) {
+                    const diff = Math.round(getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity.timezone))
+                    const sign = diff >= 0 ? '+' : ''
+                    return <div key={j} className={`date-marker-cell has-diff ${diff >= 0 ? 'plus' : 'minus'}`}>{sign}{diff}h</div>
+                  }
+                  return <div key={j} className="date-marker-cell" />
+                })}
+              </div>
+              <div className="city-timebar-hours">
+                {hours.map((h, j) => (
+                  <div
+                    key={j}
+                    className={`city-timebar-cell${h === currentHour ? ' current' : ''}${hoverCol === j ? ' col-hover' : ''} hour-${Math.round(h) < 6 ? 'night' : Math.round(h) < 12 ? 'morning' : Math.round(h) < 18 ? 'afternoon' : 'evening'}`}
+                    onMouseEnter={() => setHoverCol(j)}
+                    onMouseLeave={() => setHoverCol(null)}
+                  >
+                    {String(Math.round(h)).padStart(2, '0')}
+                  </div>
+                ))}
+              </div>
             </div>
-            <button className="city-timebar-remove" onClick={() => removeBar(barIdx)}>×</button>
           </div>
         )
       }
@@ -418,13 +439,7 @@ export default function WorldMap() {
                 const strip = document.querySelector('.date-strip')
                 if (strip) strip.scrollBy({ left: 210, behavior: 'smooth' })
               }}>▶</button>
-              {customTime && (
-                <button className="reset-time-btn" onClick={() => { setCustomTime(null); setDateOffset(0) }}>Today</button>
-              )}
-              <button className={`mode-btn${timeMode === 'business' ? ' active' : ''}`}
-                onClick={() => setTimeMode(v => v === 'business' ? 'normal' : 'business')}>
-                💼 Business Hours
-              </button>
+              <button className="reset-time-btn" onClick={() => { setCustomTime(null); setDateOffset(0) }}>Today</button>
             </div>
             {firstCity ? renderBar(firstIdx, firstCity, true) : (
               <div className="city-timebar empty"><span className="city-timebar-hint">Click a city on the map</span></div>
