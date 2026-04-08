@@ -71,7 +71,8 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
   moveBarUp(index: number) {
     if (index <= 0) return
     const bars = [...get().bars] as [BarState, BarState, BarState]
-    ;[bars[index - 1], bars[index]] = [bars[index], bars[index - 1]]
+    // Move to first position (swap with index 0)
+    ;[bars[0], bars[index]] = [bars[index], bars[0]]
     set({ bars })
   },
 
