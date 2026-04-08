@@ -368,6 +368,19 @@ export default function WorldMap() {
                     const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
                     return <div key={j} className="date-marker-cell has-date">{day}{suffix}</div>
                   }
+                  // Show date above first cell (position 0) for non-reference bars
+                  if (!_isFirst && j === 0 && h !== currentHour) {
+                    const refDate = new Date(activeTime.toLocaleString('en-US', { timeZone: firstCity?.timezone ?? city.timezone }))
+                    const diff = getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity!.timezone)
+                    let day = refDate.getDate()
+                    if (diff < 0) day = day  // behind: first cell might be previous day
+                    // The first cell shows the hour that maps to reference hour 0
+                    // If that hour > 12, it's from the previous day
+                    if (Math.round(h) > 12) day = day - 1
+                    if (day <= 0) day = new Date(refDate.getFullYear(), refDate.getMonth(), 0).getDate()
+                    const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
+                    return <div key={j} className="date-marker-cell has-date">{day}{suffix}</div>
+                  }
                   if (!_isFirst && firstCity && h === currentHour) {
                     const diff = Math.round(getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity.timezone))
                     const sign = diff >= 0 ? '+' : ''
@@ -380,7 +393,7 @@ export default function WorldMap() {
                 {hours.map((h, j) => (
                   <div
                     key={j}
-                    className={`city-timebar-cell${h === currentHour ? ' current' : ''}${hoverCol === j ? ' col-hover' : ''}${Math.round(h) >= 9 && Math.round(h) <= 17 ? ' biz-hour' : ''} hour-${Math.round(h) < 6 ? 'night' : Math.round(h) < 12 ? 'morning' : Math.round(h) < 18 ? 'afternoon' : 'evening'}`}
+                    className={`city-timebar-cell${h === currentHour ? ' current' : ''}${hoverCol === j ? ' col-hover' : ''}${Math.round(h) >= 9 && Math.round(h) <= 17 ? ' biz-hour' : ''}${Math.round(h) === 0 ? ' date-change' : ''} hour-${Math.round(h) < 6 ? 'night' : Math.round(h) < 12 ? 'morning' : Math.round(h) < 18 ? 'afternoon' : 'evening'}`}
                     onMouseEnter={() => setHoverCol(j)}
                     onMouseLeave={() => setHoverCol(null)}
                   >
