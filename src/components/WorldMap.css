@@ -44,7 +44,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 3px;
   white-space: nowrap;
   z-index: 1;
@@ -53,6 +53,18 @@
   border: 0.5px solid rgba(0, 0, 0, 0.08);
 }
 
+
+.tz-offset-label {
+  font-family: var(--ln-font-mono);
+  font-size: 10px;
+  font-weight: var(--ln-weight-bold);
+  color: rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1px 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  user-select: none;
+}
 
 .city-ml-name {
   font-family: var(--ln-font);

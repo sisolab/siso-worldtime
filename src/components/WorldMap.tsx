@@ -41,7 +41,7 @@ const REPRESENTATIVE_CITY_IDS = new Set([
 // ── Label placement: candidate-based with global iteration ──────────────────
 const D = 12        // distance from dot to label edge
 const LW = 58       // label width (10px font, ~6-7 chars + padding)
-const LH = 30       // label height (10px×2 lines×1.3 + 4px padding)
+const LH = 34       // label height (10px×2 lines×1.3 + 8px padding)
 const DOT_SZ = 10   // dot collision size (matches CSS)
 
 function getCityTime(timezone: string, now: Date): string {
@@ -166,18 +166,17 @@ export default function WorldMap() {
         touchPitch={false}
         onLoad={onMapLoad}
       >
-        {/* Reference lines: Prime Meridian, Date Line */}
-        <Source id="ref-lines" type="geojson" data={{
+        {/* Hourly timezone grid lines (behind land) */}
+        <Source id="tz-grid" type="geojson" data={{
           type: 'FeatureCollection',
-          features: [
-            { type: 'Feature', properties: { type: 'prime' }, geometry: { type: 'LineString', coordinates: [[0, -85], [0, 85]] } },
-            { type: 'Feature', properties: { type: 'dateline' }, geometry: { type: 'LineString', coordinates: [[180, -85], [180, 85]] } },
-          ],
+          features: Array.from({ length: 25 }, (_, i) => ({
+            type: 'Feature' as const,
+            properties: {},
+            geometry: { type: 'LineString' as const, coordinates: [[(i - 12) * 15, -85], [(i - 12) * 15, 85]] },
+          })),
         }}>
-          <Layer id="prime-meridian" type="line" filter={['==', ['get', 'type'], 'prime']}
-            paint={{ 'line-color': 'rgba(30,70,180,0.4)', 'line-width': 1.5, 'line-dasharray': [2, 2] }} />
-          <Layer id="date-line" type="line" filter={['==', ['get', 'type'], 'dateline']}
-            paint={{ 'line-color': 'rgba(180,120,30,0.5)', 'line-width': 2, 'line-dasharray': [2, 2] }} />
+          <Layer id="tz-grid-lines" type="line"
+            paint={{ 'line-color': 'rgba(0,0,0,0.08)', 'line-width': 0.5, 'line-dasharray': [2, 2] }} />
         </Source>
 
         {/* Admin-1 timezone fill */}
@@ -217,6 +216,18 @@ export default function WorldMap() {
           />
         </Source>
 
+
+        {/* UTC offset labels — same longitude as grid lines */}
+        {Array.from({ length: 25 }, (_, i) => {
+          const offset = i - 12
+          const text = offset === 0 ? 'UTC' : offset > 0 ? '+' + offset : String(offset)
+          return (
+            <Marker key={`tz-${offset}`} longitude={offset * 15} latitude={75} anchor="center">
+              <span className="tz-offset-label">{text}</span>
+            </Marker>
+          )
+        })}
+
         {/* City markers */}
         {repCities.map((city) => {
           const isRegistered = registeredCityIds.has(city.id)
@@ -229,7 +240,7 @@ export default function WorldMap() {
               <div className="city-ml-root" onClick={() => toggleCity(city)}>
                 {/* Connecting line */}
                 <svg width="0" height="0" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
-                  <line x1={0} y1={0} x2={0} y2={lineY} stroke="rgba(0,0,0,0.3)" strokeWidth={1} />
+                  <line x1={0} y1={0} x2={0} y2={lineY} stroke="rgba(0,0,0,0.2)" strokeWidth={1} />
                 </svg>
                 {/* Dot */}
                 <div className={`city-ml-dot${isRegistered ? ' city-ml-dot--active' : ''}`} />
