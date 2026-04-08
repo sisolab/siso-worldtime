@@ -23,33 +23,35 @@
   user-select: none;
 }
 
-/* Representative city button */
+/* Representative city: dot + label below */
 .city-rep-group {
   cursor: pointer;
 }
 
-.city-rep-btn {
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+.city-rep-dot {
   transition: var(--ln-transition-base);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
 }
 
-.city-rep-group:hover .city-rep-btn {
-  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
+.city-rep-group:hover .city-rep-dot {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
+  opacity: 0.85;
 }
 
 .city-rep-name {
   font-family: var(--ln-font);
   font-size: 10px;
   font-weight: var(--ln-weight-semibold);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.6);
   pointer-events: none;
   user-select: none;
 }
 
 .city-rep-time {
   font-family: var(--ln-font-mono);
-  font-size: 10px;
-  font-weight: var(--ln-weight-semibold);
+  font-size: 9px;
+  font-weight: var(--ln-weight-medium);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
   pointer-events: none;
   user-select: none;
 }
