@@ -1,4 +1,4 @@
-import { useMemo, useCallback, useRef, useState } from 'react'
+import React, { useMemo, useCallback, useRef, useState } from 'react'
 import Map, { Source, Layer, Marker } from 'react-map-gl/maplibre'
 import type { MapRef } from 'react-map-gl/maplibre'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -7,6 +7,7 @@ import type { City } from '../data/cities'
 import { CITIES } from '../data/cities'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
 import { getCurrentHour } from '../utils/timeUtils'
+import { getUtcOffsetHours } from '../utils/timezoneColors'
 import './WorldMap.css'
 
 // Minimal basemap style — only background + water, no labels/boundaries/roads
@@ -54,9 +55,14 @@ function getCityTime(timezone: string, now: Date): string {
 }
 
 export default function WorldMap() {
-  const { bars, now, addCity, removeBar } = useWorldTimeStore()
+  const { bars, now, addCity, removeBar, moveBarUp } = useWorldTimeStore()
+  const [flashIdx, setFlashIdx] = useState<number | null>(null)
   const mapRef = useRef<MapRef>(null)
   const [aboveCities, setAboveCities] = useState<Set<string>>(new Set())
+  const [showCities, setShowCities] = useState(true)
+  const [timeMode, setTimeMode] = useState<'normal' | 'business' | 'sports'>('normal')
+  const [customTime, setCustomTime] = useState<Date | null>(null)
+  const activeTime = customTime ?? now
 
   // Night zones based on current UTC time
   const nightGeoJson = useMemo((): GeoJSON.FeatureCollection => {
@@ -267,6 +273,7 @@ export default function WorldMap() {
 
 
 
+        {showCities && <>
         {/* Date change label at midnight line */}
         {(() => {
           const utcH = now.getUTCHours() + now.getUTCMinutes() / 60
@@ -275,10 +282,14 @@ export default function WorldMap() {
           const westOffsetH = Math.round((midLng - 7.5) / 15)
           const westLocal = new Date(now.getTime() + westOffsetH * 3600000)
           const eastLocal = new Date(westLocal.getTime() + 86400000)
+          const fmt = (d: Date) => {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+            return `${months[d.getUTCMonth()]} ${d.getUTCDate()}`
+          }
 
           return (
             <Marker longitude={midLng} latitude={-55} anchor="center">
-              <span className="date-label">{westLocal.getUTCDate()} → {eastLocal.getUTCDate()}</span>
+              <span className="date-label">{fmt(westLocal)} | {fmt(eastLocal)}</span>
             </Marker>
           )
         })()}
@@ -286,7 +297,7 @@ export default function WorldMap() {
         {/* City markers */}
         {repCities.map((city) => {
           const isRegistered = registeredCityIds.has(city.id)
-          const timeStr = getCityTime(city.timezone, now)
+          const timeStr = getCityTime(city.timezone, activeTime)
           const isAbove = aboveCities.has(city.id)
           const lineY = isAbove ? -D : D
           const labelY = isAbove ? -(D + LH) : D
@@ -311,34 +322,113 @@ export default function WorldMap() {
             </Marker>
           )
         })}
+        </>}
       </Map>
 
+      <button className="toggle-cities-btn" onClick={() => setShowCities(v => !v)}>
+        {showCities ? 'Hide Cities' : 'Show Cities'}
+      </button>
     </div>
 
-    {/* Bottom panel — outside worldmap-container to avoid overflow:hidden */}
-    <div className="bottom-panel">
-      {bars.map((b, i) => {
-        if (!b.city) return null
-        const city = b.city
-        const currentHour = getCurrentHour(city.timezone, now)
-        const hours = Array.from({ length: 9 }, (_, j) => (currentHour - 4 + j + 24) % 24)
-        const timeStr = getCityTime(city.timezone, now)
+    {/* Bottom panels */}
+    {(() => {
+      const firstIdx = bars.findIndex(b => b.city)
+      const firstCity = firstIdx >= 0 ? bars[firstIdx].city! : null
+      const bizHours = timeMode === 'business' ? [9,10,11,12,13,14,15,16,17,18] : [12,13,14,15,16,17,18,19,20,21]
+
+      function renderBar(barIdx: number, city: NonNullable<typeof firstCity>, isFirst: boolean) {
+        const timeStr = getCityTime(city.timezone, activeTime)
+        const currentHour = getCurrentHour(city.timezone, activeTime)
+        let hours: number[]
+        let dateDiffs: number[] = []
+
+        if (timeMode !== 'normal' && firstCity) {
+          if (isFirst) {
+            hours = bizHours
+          } else {
+            const diff = getUtcOffsetHours(city.timezone) - getUtcOffsetHours(firstCity.timezone)
+            hours = bizHours.map(h => ((h + diff) % 24 + 24) % 24)
+            dateDiffs = bizHours.map(h => {
+              const mapped = h + diff
+              if (mapped >= 24) return 1
+              if (mapped < 0) return -1
+              return 0
+            })
+          }
+        } else {
+          hours = Array.from({ length: 9 }, (_, j) => (currentHour - 4 + j + 24) % 24)
+        }
+
         return (
-          <div key={i} className="city-timebar">
-            <button className="city-timebar-remove" onClick={() => removeBar(i)}>×</button>
+          <div className={`city-timebar${flashIdx === barIdx ? ' flash' : ''}`}>
+            <button className="city-timebar-up" onClick={() => { moveBarUp(barIdx); setFlashIdx(barIdx - 1); setTimeout(() => setFlashIdx(null), 500) }} disabled={barIdx === 0}>↑</button>
             <span className="city-timebar-name">{city.nameEn}</span>
             <span className="city-timebar-time">{timeStr}</span>
             <div className="city-timebar-hours">
               {hours.map((h, j) => (
-                <div key={j} className={`city-timebar-cell${h === currentHour ? ' current' : ''}`}>
-                  {String(h).padStart(2, '0')}
+                <div key={j} className={`city-timebar-cell${timeMode === 'normal' && h === currentHour ? ' current' : ''}${timeMode !== 'normal' && isFirst ? ' biz' : ''}${dateDiffs[j] ? ' next-day' : ''}`}>
+                  {String(Math.round(h)).padStart(2, '0')}
+                  {dateDiffs[j] ? <span className="cell-date-badge">{dateDiffs[j] > 0 ? '+1' : '-1'}</span> : null}
                 </div>
               ))}
             </div>
+            <button className="city-timebar-remove" onClick={() => removeBar(barIdx)}>×</button>
           </div>
         )
-      })}
-    </div>
+      }
+
+      const others = bars.map((b, i) => ({ b, i })).filter(({ b, i }) => b.city && i !== firstIdx)
+
+      return (<>
+        {/* Primary city panel */}
+        {firstCity && (
+          <div className="bottom-panel primary-panel">
+            {renderBar(firstIdx, firstCity, true)}
+            <div className="first-bar-controls">
+              <div className="time-editor">
+                <input
+                  type="date"
+                  className="time-input"
+                  value={(() => {
+                    const tzd = new Date(activeTime.toLocaleString('en-US', { timeZone: firstCity.timezone }))
+                    return `${tzd.getFullYear()}-${String(tzd.getMonth()+1).padStart(2,'0')}-${String(tzd.getDate()).padStart(2,'0')}`
+                  })()}
+                  onChange={(e) => {
+                    if (!e.target.value) return
+                    const [y,m,d] = e.target.value.split('-').map(Number)
+                    const offset = getUtcOffsetHours(firstCity.timezone)
+                    const currentLocal = new Date(now.toLocaleString('en-US', { timeZone: firstCity.timezone }))
+                    setCustomTime(new Date(Date.UTC(y, m-1, d, currentLocal.getHours() - offset, currentLocal.getMinutes())))
+                  }}
+                />
+                {customTime && (
+                  <button className="reset-time-btn" onClick={() => setCustomTime(null)}>Today</button>
+                )}
+              </div>
+              <button className={`business-time-btn${timeMode === 'business' ? ' active' : ''}`}
+                onClick={() => setTimeMode(v => v === 'business' ? 'normal' : 'business')}>
+                💼 Business Hours
+              </button>
+              <button className={`business-time-btn sports${timeMode === 'sports' ? ' active' : ''}`}
+                onClick={() => setTimeMode(v => v === 'sports' ? 'normal' : 'sports')}>
+                ⚽ Sports Time
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Other cities panel */}
+        {others.length > 0 && (
+          <div className="bottom-panel secondary-panel">
+            {others.map(({ b, i }) => (
+              <React.Fragment key={i}>
+                {renderBar(i, b.city!, false)}
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+      </>)
+    })()}
     </div>
   )
 }

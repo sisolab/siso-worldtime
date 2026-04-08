@@ -23,6 +23,7 @@ interface WorldTimeStore {
 
   addCity: (city: City) => void
   removeBar: (index: number) => void
+  moveBarUp: (index: number) => void
   setActiveMode: (mode: ActiveMode) => void
   tick: () => void
   dismissToast: (id: number) => void
@@ -64,6 +65,13 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
 
     const emptyIndex = bars.findIndex((b) => b.city === null)
     bars[emptyIndex] = { city }
+    set({ bars })
+  },
+
+  moveBarUp(index: number) {
+    if (index <= 0) return
+    const bars = [...get().bars] as [BarState, BarState, BarState]
+    ;[bars[index - 1], bars[index]] = [bars[index], bars[index - 1]]
     set({ bars })
   },
 

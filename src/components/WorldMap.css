@@ -72,7 +72,7 @@
 .bottom-panel {
   width: 100%;
   margin-top: 8px;
-  background: #ffffff;
+  background: #f0f1f3;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   box-sizing: border-box;
@@ -89,6 +89,42 @@
   gap: 8px;
 }
 
+.city-timebar.flash {
+  animation: bar-flash 0.5s ease;
+}
+
+@keyframes bar-flash {
+  0% { background: rgba(74, 144, 217, 0.15); transform: translateY(20px); opacity: 0.3; }
+  60% { background: rgba(74, 144, 217, 0.08); transform: translateY(-2px); opacity: 1; }
+  100% { background: transparent; transform: translateY(0); opacity: 1; }
+}
+
+.city-timebar-up {
+  background: #eee;
+  border: none;
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  width: 20px;
+  align-self: stretch;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.city-timebar-up:hover:not(:disabled) {
+  background: #ddd;
+  color: #333;
+}
+
+.city-timebar-up:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
 .city-timebar-remove {
   background: #e74c3c;
   border: none;
@@ -96,7 +132,7 @@
   color: #ffffff;
   cursor: pointer;
   width: 20px;
-  height: 20px;
+  align-self: stretch;
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -130,31 +166,175 @@
 .city-timebar-hours {
   display: flex;
   flex: 1;
-  background: #eef0f2;
-  border-radius: 6px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 8px;
   overflow: hidden;
-  padding: 2px;
-  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
 .city-timebar-cell {
   flex: 1;
   text-align: center;
-  padding: 6px 0;
+  padding: 8px 0;
   font-family: var(--ln-font-mono);
   font-size: 11px;
-  color: #999;
+  color: #888;
+  position: relative;
+}
+
+/* Divider: 80% height, centered */
+.city-timebar-cell + .city-timebar-cell::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10%;
+  height: 80%;
+  width: 1px;
+  background: rgba(0,0,0,0.08);
+}
+
+.city-timebar-cell.current + .city-timebar-cell::before,
+.city-timebar-cell + .city-timebar-cell.current::before {
   background: transparent;
-  border-radius: 4px;
 }
 
 .city-timebar-cell.current {
   background: #4A90D9;
   color: #ffffff;
   font-weight: var(--ln-weight-bold);
-  box-shadow: 0 1px 3px rgba(74, 144, 217, 0.35);
+  border-right-color: transparent;
 }
 
+/* First cell: left rounded */
+.city-timebar-cell:first-child.current {
+  border-radius: 7px 0 0 7px;
+}
+
+/* Last cell: right rounded */
+.city-timebar-cell:last-child.current {
+  border-radius: 0 7px 7px 0;
+}
+
+/* Middle cell: no rounding */
+.city-timebar-cell:not(:first-child):not(:last-child).current {
+  border-radius: 0;
+}
+
+.city-timebar-cell.biz {
+  background: rgba(74, 144, 217, 0.1);
+  color: #4A90D9;
+  font-weight: var(--ln-weight-semibold);
+}
+
+.city-timebar-cell.next-day {
+  color: #bbb;
+}
+
+.cell-date-badge {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 7px;
+  color: #e74c3c;
+  font-weight: var(--ln-weight-bold);
+}
+
+.bar-divider {
+  border: none;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  margin: 4px 0 2px;
+}
+
+.first-bar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 28px;
+}
+
+.time-editor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-input {
+  font-family: var(--ln-font-mono);
+  font-size: 11px;
+  padding: 3px 6px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #333;
+}
+
+.reset-time-btn {
+  background: none;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-family: var(--ln-font);
+  font-size: 10px;
+  color: #888;
+  cursor: pointer;
+}
+
+.reset-time-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.business-time-btn {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-family: var(--ln-font);
+  font-size: 11px;
+  font-weight: var(--ln-weight-semibold);
+  color: #555;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.business-time-btn:hover {
+  background: #f5f5f5;
+}
+
+.business-time-btn.active {
+  background: #4A90D9;
+  color: #ffffff;
+  border-color: #4A90D9;
+}
+
+.business-time-btn.sports.active {
+  background: #27ae60;
+  border-color: #27ae60;
+}
+
+
+.toggle-cities-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-family: var(--ln-font);
+  font-size: 11px;
+  font-weight: var(--ln-weight-semibold);
+  color: #333;
+  cursor: pointer;
+}
+
+.toggle-cities-btn:hover {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.3);
+}
 
 .date-label {
   font-family: var(--ln-font-mono);
