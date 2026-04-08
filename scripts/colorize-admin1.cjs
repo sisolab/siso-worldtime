@@ -141,6 +141,14 @@ function getTz(p) {
     if (lng<115) return 'Asia/Jakarta'; if (lng<130) return 'Asia/Makassar';
     return 'Asia/Jayapura';
   }
+  // France overseas territories — iso_a2 is 'FR' but different timezones
+  if (iso === 'FR' && lng != null) {
+    if (lng < -50) return 'America/Cayenne';       // French Guiana (UTC-3)
+    if (lng < -40) return 'America/Guadeloupe';     // Caribbean (UTC-4)
+    if (lng > 40 && lng < 60) return 'Indian/Reunion'; // Réunion (UTC+4)
+    if (lng > 150) return 'Pacific/Noumea';         // New Caledonia (UTC+11)
+    return COUNTRY_TZ['FR'];                        // Mainland France
+  }
   if (iso === 'MX') {
     if (lng<-110) return 'America/Tijuana'; if (lng<-105) return 'America/Mazatlan';
     return 'America/Mexico_City';
