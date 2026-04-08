@@ -198,6 +198,10 @@ export default function WorldMap() {
         <button className="toggle-cities-btn" onClick={() => setShowCities(v => !v)}>
           {showCities ? 'Hide Cities' : 'Show Cities'}
         </button>
+
+        <div className="map-contact">
+          Feedback &amp; Bug Reports: <a href="mailto:sisolab@proton.me">sisolab@proton.me</a>
+        </div>
       </div>
 
       {/* ── Bottom panels ────────────────────────────────────── */}
