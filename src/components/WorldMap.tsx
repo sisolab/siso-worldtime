@@ -26,8 +26,9 @@ const MAP_STYLE: any = {
   },
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   layers: [
-    { id: 'background', type: 'background', paint: { 'background-color': '#d5d5d0' } },
-    { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': '#c2c8ca' } },
+    { id: 'background', type: 'background', paint: { 'background-color': '#c2c8ca' } },
+    { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water',
+      paint: { 'fill-color': '#c2c8ca' } },
   ],
 }
 const ADMIN1_URL = '/ne_admin1.geojson'
@@ -200,12 +201,22 @@ export default function WorldMap() {
           />
         </Source>
 
+        {/* Country borders — drawn ON TOP of timezone fill */}
+        <Layer
+          id="country-border"
+          type="line"
+          source="openmaptiles"
+          source-layer="boundary"
+          filter={['all', ['==', 'admin_level', 2], ['!=', 'maritime', 1]]}
+          paint={{ 'line-color': '#ffffff', 'line-width': 0.2 }}
+        />
+
         {/* Timezone boundary lines — only between different-timezone regions */}
         <Source id="tz-bounds" type="geojson" data={TZ_BOUNDS_URL}>
           <Layer
             id="tz-boundary-lines"
             type="line"
-            paint={{ 'line-color': '#000000', 'line-width': 1.5, 'line-opacity': 0.6 }}
+            paint={{ 'line-color': '#ffffff', 'line-width': 1 }}
           />
         </Source>
 
@@ -217,9 +228,26 @@ export default function WorldMap() {
           return (
             <Marker key={city.id} longitude={city.lng} latitude={city.lat} anchor="center">
               <div className="city-ml-root" onClick={() => toggleCity(city)}>
-                {/* Dot at center — always white with shadow */}
+                {/* Connecting line from dot (0,0) to label center */}
+                <svg
+                  className="city-ml-line"
+                  style={{
+                    position: 'absolute',
+                    left: 0, top: 0,
+                    overflow: 'visible',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <line
+                    x1={0} y1={0}
+                    x2={xo} y2={yo + 15}
+                    stroke="rgba(255,255,255,0.8)"
+                    strokeWidth={1}
+                  />
+                </svg>
+                {/* Dot at center */}
                 <div className={`city-ml-dot${isRegistered ? ' city-ml-dot--active' : ''}`} />
-                {/* Label box offset from dot — bg = timezone color, text = white */}
+                {/* Label box offset from dot */}
                 <div
                   className="city-ml-label"
                   style={{

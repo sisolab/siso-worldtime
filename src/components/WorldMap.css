@@ -59,17 +59,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Connecting line from dot to label */
-.city-ml-label::before {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  width: 1px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
-}
 
 .city-ml-name {
   font-family: var(--ln-font);
