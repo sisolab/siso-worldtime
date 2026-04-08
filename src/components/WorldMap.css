@@ -49,9 +49,8 @@
 
 .city-rep-time {
   font-family: var(--ln-font-mono);
-  font-size: 9px;
-  font-weight: var(--ln-weight-medium);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  font-size: 10px;
+  font-weight: var(--ln-weight-bold);
   pointer-events: none;
   user-select: none;
 }

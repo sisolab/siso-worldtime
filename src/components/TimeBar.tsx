@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Pin, Trash2, Briefcase, CalendarDays } from 'lucide-react'
+import { Trash2, Briefcase, CalendarDays } from 'lucide-react'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
 import { getBarHours, getCurrentHour, getDateLabel } from '../utils/timeUtils'
 import './TimeBar.css'
@@ -9,7 +9,7 @@ interface TimeBarProps {
 }
 
 export default function TimeBar({ index }: TimeBarProps) {
-  const { bars, activeMode, now, toggleFix, removeBar, setActiveMode } = useWorldTimeStore()
+  const { bars, activeMode, now, removeBar, setActiveMode } = useWorldTimeStore()
   const bar = bars[index]
   const [showCalendar, setShowCalendar] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -81,7 +81,7 @@ export default function TimeBar({ index }: TimeBarProps) {
   const isEmpty = !bar.city
 
   return (
-    <div className={`timebar${isEmpty ? ' timebar--empty' : ''}${bar.fixed ? ' timebar--fixed' : ''}`}>
+    <div className={`timebar${isEmpty ? ' timebar--empty' : ''}`}>
       {/* City name + time display */}
       <div className="timebar-header">
         {isEmpty ? (
@@ -131,14 +131,6 @@ export default function TimeBar({ index }: TimeBarProps) {
 
       {/* Action icons */}
       <div className="timebar-actions">
-        <button
-          className={`ln-icon-btn ln-icon-btn-sm${bar.fixed ? ' active' : ''}`}
-          title={bar.fixed ? 'Unpin' : 'Pin (keep slot)'}
-          onClick={() => toggleFix(index)}
-          disabled={isEmpty}
-        >
-          <Pin size={14} />
-        </button>
         <button
           className="ln-icon-btn ln-icon-btn-sm"
           title="Remove"

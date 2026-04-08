@@ -8,7 +8,6 @@ export type ActiveMode =
 
 export interface BarState {
   city: City | null
-  fixed: boolean
 }
 
 export interface Toast {
@@ -24,13 +23,12 @@ interface WorldTimeStore {
 
   addCity: (city: City) => void
   removeBar: (index: number) => void
-  toggleFix: (index: number) => void
   setActiveMode: (mode: ActiveMode) => void
   tick: () => void
   dismissToast: (id: number) => void
 }
 
-const emptyBar = (): BarState => ({ city: null, fixed: false })
+const emptyBar = (): BarState => ({ city: null })
 
 let toastCounter = 0
 
@@ -59,15 +57,13 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
   addCity(city: City) {
     const bars = [...get().bars] as [BarState, BarState, BarState]
 
-    // All 3 bars occupied → block, user must delete manually
     if (bars.every((b) => b.city !== null)) {
       showToast(get, set, 'All 3 slots are in use. Remove one to add another.')
       return
     }
 
-    // Fill the first empty slot
     const emptyIndex = bars.findIndex((b) => b.city === null)
-    bars[emptyIndex] = { city, fixed: false }
+    bars[emptyIndex] = { city }
     set({ bars })
   },
 
@@ -75,7 +71,6 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
     const bars = [...get().bars] as [BarState, BarState, BarState]
     bars[index] = emptyBar()
 
-    // Also reset activeMode if this bar owned it
     const mode = get().activeMode
     let activeMode = get().activeMode
     if (
@@ -86,28 +81,6 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
     }
 
     set({ bars, activeMode })
-  },
-
-  toggleFix(index: number) {
-    const bars = [...get().bars] as [BarState, BarState, BarState]
-    const bar = bars[index]
-    const wasFixed = bar.fixed
-
-    if (wasFixed) {
-      // Unfix: move to end (index 2)
-      const newBar = { ...bar, fixed: false }
-      const rest = bars.filter((_, i) => i !== index)
-      const merged = [...rest, newBar] as [BarState, BarState, BarState]
-      set({ bars: merged })
-    } else {
-      // Fix: move to last fixed position (right before unfixed bars)
-      const newBar = { ...bar, fixed: true }
-      const others = bars.filter((_, i) => i !== index)
-      const fixedOthers = others.filter((b) => b.fixed)
-      const unfixedOthers = others.filter((b) => !b.fixed)
-      const merged = [...fixedOthers, newBar, ...unfixedOthers] as [BarState, BarState, BarState]
-      set({ bars: merged })
-    }
   },
 
   setActiveMode(mode: ActiveMode) {
