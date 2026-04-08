@@ -265,3 +265,24 @@ const coastlineGeoJson = {
 fs.writeFileSync('./public/coastline.geojson', JSON.stringify(coastlineGeoJson));
 const coastSize = (fs.statSync('./public/coastline.geojson').size / 1024 / 1024).toFixed(2);
 console.log('Coastline:', coastSize, 'MB');
+
+// ── Step 4: Multi-timezone country internal borders ─────────────────────────
+// Only borders WITHIN countries that have multiple timezones (US, RU, CA, AU, BR, ID, MX)
+const MULTI_TZ = new Set(['US', 'RU', 'CA', 'AU', 'BR', 'ID', 'MX']);
+const multiTzGeoms = topoGeoms.filter(g => MULTI_TZ.has(g.properties.iso_a2));
+
+// Extract only LAND borders of multi-tz countries (coastlines excluded automatically)
+// a !== b means shared border between two features; coastlines have a === b
+const multiTzMesh = topojson.mesh(topo, topo.objects.admin1, (a, b) => {
+  return a !== b &&
+    a.properties.iso_a2 !== b.properties.iso_a2 &&
+    (MULTI_TZ.has(a.properties.iso_a2) || MULTI_TZ.has(b.properties.iso_a2));
+});
+
+const multiTzGeoJson = {
+  type: 'FeatureCollection',
+  features: [{ type: 'Feature', properties: {}, geometry: multiTzMesh }],
+};
+fs.writeFileSync('./public/multi-tz-borders.geojson', JSON.stringify(multiTzGeoJson));
+const mtzSize = (fs.statSync('./public/multi-tz-borders.geojson').size / 1024 / 1024).toFixed(2);
+console.log('Multi-TZ country outlines:', mtzSize, 'MB');

@@ -30,7 +30,8 @@
 .city-ml-dot--active {
   width: 13px;
   height: 13px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 1px rgba(0, 0, 0, 0.1);
+  background: #4A90D9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(74, 144, 217, 0.3);
 }
 
 .city-ml-root:hover .city-ml-dot {
@@ -53,15 +54,116 @@
   border: 0.5px solid rgba(0, 0, 0, 0.08);
 }
 
+.city-ml-root.active .city-ml-label {
+  background: linear-gradient(to bottom, #4A90D9, #3A7BC8);
+  border-color: rgba(74, 144, 217, 0.5);
+  box-shadow: 0 2px 6px rgba(74, 144, 217, 0.4), 0 1px 2px rgba(0, 0, 0, 0.15);
+}
 
-.tz-offset-label {
+.city-ml-root.active .city-ml-name,
+.city-ml-root.active .city-ml-time {
+  color: #ffffff;
+}
+
+.worldmap-wrapper {
+  width: 100%;
+}
+
+.bottom-panel {
+  width: 100%;
+  margin-top: 8px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.city-timebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.city-timebar-remove {
+  background: #e74c3c;
+  border: none;
+  font-size: 12px;
+  color: #ffffff;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.city-timebar-remove:hover {
+  background: #c0392b;
+}
+
+.city-timebar-name {
+  font-family: var(--ln-font);
+  font-size: 11px;
+  font-weight: var(--ln-weight-semibold);
+  color: #222;
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.city-timebar-time {
   font-family: var(--ln-font-mono);
-  font-size: 10px;
+  font-size: 13px;
   font-weight: var(--ln-weight-bold);
-  color: rgba(0, 0, 0, 0.5);
-  background: rgba(255, 255, 255, 0.7);
-  padding: 1px 4px;
-  border-radius: 2px;
+  color: #4A90D9;
+  min-width: 40px;
+  flex-shrink: 0;
+}
+
+.city-timebar-hours {
+  display: flex;
+  flex: 1;
+  background: #eef0f2;
+  border-radius: 6px;
+  overflow: hidden;
+  padding: 2px;
+  gap: 2px;
+}
+
+.city-timebar-cell {
+  flex: 1;
+  text-align: center;
+  padding: 6px 0;
+  font-family: var(--ln-font-mono);
+  font-size: 11px;
+  color: #999;
+  background: transparent;
+  border-radius: 4px;
+}
+
+.city-timebar-cell.current {
+  background: #4A90D9;
+  color: #ffffff;
+  font-weight: var(--ln-weight-bold);
+  box-shadow: 0 1px 3px rgba(74, 144, 217, 0.35);
+}
+
+
+.date-label {
+  font-family: var(--ln-font-mono);
+  font-size: 12px;
+  font-weight: var(--ln-weight-bold);
+  color: #1D4ED8;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 3px 8px;
+  border-radius: 4px;
   pointer-events: none;
   user-select: none;
 }

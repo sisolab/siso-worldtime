@@ -6,7 +6,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import type { City } from '../data/cities'
 import { CITIES } from '../data/cities'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
-import '../utils/timezoneColors' // keep module for TimeBar usage
+import { getCurrentHour } from '../utils/timeUtils'
 import './WorldMap.css'
 
 // Minimal basemap style — only background + water, no labels/boundaries/roads
@@ -57,6 +57,38 @@ export default function WorldMap() {
   const { bars, now, addCity, removeBar } = useWorldTimeStore()
   const mapRef = useRef<MapRef>(null)
   const [aboveCities, setAboveCities] = useState<Set<string>>(new Set())
+
+  // Night zones based on current UTC time
+  const nightGeoJson = useMemo((): GeoJSON.FeatureCollection => {
+    const utcH = now.getUTCHours() + now.getUTCMinutes() / 60
+
+    function makeZone(startHour: number, endHour: number, zone: string): GeoJSON.Feature[] {
+      // Local time startHour → endHour covers these longitudes
+      const leftLng = ((startHour - utcH) * 15 + 540) % 360 - 180
+      const rightLng = ((endHour - utcH) * 15 + 540) % 360 - 180
+
+      function rect(l: number, r: number): GeoJSON.Feature {
+        return {
+          type: 'Feature', properties: { zone },
+          geometry: { type: 'Polygon', coordinates: [[[l,-85],[r,-85],[r,85],[l,85],[l,-85]]] },
+        }
+      }
+
+      if (leftLng < rightLng) return [rect(leftLng, rightLng)]
+      // Wraps around date line
+      return [rect(leftLng, 180), rect(-180, rightLng)]
+    }
+
+    return {
+      type: 'FeatureCollection',
+      features: [
+        ...makeZone(6, 12, 'morning'),     // 6AM - noon: light beige
+        ...makeZone(12, 18, 'afternoon'),   // noon - 6PM: darker beige
+        ...makeZone(18, 24, 'evening'),     // 6PM - midnight: gray
+        ...makeZone(0, 6, 'night'),         // midnight - 6AM: dark
+      ],
+    }
+  }, [now])
 
   const repCities = useMemo(
     () => CITIES.filter((c) => REPRESENTATIVE_CITY_IDS.has(c.id)),
@@ -149,6 +181,7 @@ export default function WorldMap() {
   }, [bars, addCity, removeBar])
 
   return (
+    <div className="worldmap-wrapper">
     <div className="worldmap-container">
       <Map
         ref={mapRef}
@@ -166,6 +199,22 @@ export default function WorldMap() {
         touchPitch={false}
         onLoad={onMapLoad}
       >
+        {/* Night overlay on ocean — rendered below land so only ocean shows */}
+        <Source id="night-zones" type="geojson" data={nightGeoJson}>
+          <Layer id="morning-zone" type="fill"
+            filter={['==', ['get', 'zone'], 'morning']}
+            paint={{ 'fill-color': 'rgba(200,170,80,0.08)' }} />
+          <Layer id="afternoon-zone" type="fill"
+            filter={['==', ['get', 'zone'], 'afternoon']}
+            paint={{ 'fill-color': 'rgba(200,170,80,0.15)' }} />
+          <Layer id="evening-zone" type="fill"
+            filter={['==', ['get', 'zone'], 'evening']}
+            paint={{ 'fill-color': 'rgba(0,0,30,0.12)' }} />
+          <Layer id="night-zone" type="fill"
+            filter={['==', ['get', 'zone'], 'night']}
+            paint={{ 'fill-color': 'rgba(0,0,30,0.25)' }} />
+        </Source>
+
         {/* Hourly timezone grid lines (behind land) */}
         <Source id="tz-grid" type="geojson" data={{
           type: 'FeatureCollection',
@@ -217,16 +266,22 @@ export default function WorldMap() {
         </Source>
 
 
-        {/* UTC offset labels — same longitude as grid lines */}
-        {Array.from({ length: 25 }, (_, i) => {
-          const offset = i - 12
-          const text = offset === 0 ? 'UTC' : offset > 0 ? '+' + offset : String(offset)
+
+        {/* Date change label at midnight line */}
+        {(() => {
+          const utcH = now.getUTCHours() + now.getUTCMinutes() / 60
+          const midLng = ((0 - utcH) * 15 + 540) % 360 - 180
+
+          const westOffsetH = Math.round((midLng - 7.5) / 15)
+          const westLocal = new Date(now.getTime() + westOffsetH * 3600000)
+          const eastLocal = new Date(westLocal.getTime() + 86400000)
+
           return (
-            <Marker key={`tz-${offset}`} longitude={offset * 15} latitude={75} anchor="center">
-              <span className="tz-offset-label">{text}</span>
+            <Marker longitude={midLng} latitude={-55} anchor="center">
+              <span className="date-label">{westLocal.getUTCDate()} → {eastLocal.getUTCDate()}</span>
             </Marker>
           )
-        })}
+        })()}
 
         {/* City markers */}
         {repCities.map((city) => {
@@ -237,7 +292,7 @@ export default function WorldMap() {
           const labelY = isAbove ? -(D + LH) : D
           return (
             <Marker key={city.id} longitude={city.lng} latitude={city.lat} style={{ overflow: 'visible' }}>
-              <div className="city-ml-root" onClick={() => toggleCity(city)}>
+              <div className={`city-ml-root${isRegistered ? ' active' : ''}`} onClick={() => toggleCity(city)}>
                 {/* Connecting line */}
                 <svg width="0" height="0" style={{ position: 'absolute', left: 0, top: 0, overflow: 'visible', pointerEvents: 'none' }}>
                   <line x1={0} y1={0} x2={0} y2={lineY} stroke="rgba(0,0,0,0.2)" strokeWidth={1} />
@@ -258,6 +313,32 @@ export default function WorldMap() {
         })}
       </Map>
 
+    </div>
+
+    {/* Bottom panel — outside worldmap-container to avoid overflow:hidden */}
+    <div className="bottom-panel">
+      {bars.map((b, i) => {
+        if (!b.city) return null
+        const city = b.city
+        const currentHour = getCurrentHour(city.timezone, now)
+        const hours = Array.from({ length: 9 }, (_, j) => (currentHour - 4 + j + 24) % 24)
+        const timeStr = getCityTime(city.timezone, now)
+        return (
+          <div key={i} className="city-timebar">
+            <button className="city-timebar-remove" onClick={() => removeBar(i)}>×</button>
+            <span className="city-timebar-name">{city.nameEn}</span>
+            <span className="city-timebar-time">{timeStr}</span>
+            <div className="city-timebar-hours">
+              {hours.map((h, j) => (
+                <div key={j} className={`city-timebar-cell${h === currentHour ? ' current' : ''}`}>
+                  {String(h).padStart(2, '0')}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })}
+    </div>
     </div>
   )
 }
