@@ -25,11 +25,6 @@ function loadBars(): [BarState, BarState, BarState] {
   }
 }
 
-export type ActiveMode =
-  | { type: 'none' }
-  | { type: 'business'; barIndex: number }
-  | { type: 'calendar'; barIndex: number; date: Date }
-
 export interface BarState {
   city: City | null
 }
@@ -41,14 +36,11 @@ export interface Toast {
 
 interface WorldTimeStore {
   bars: [BarState, BarState, BarState]
-  activeMode: ActiveMode
   now: Date
   toasts: Toast[]
 
   addCity: (city: City) => void
   removeBar: (index: number) => void
-  moveBarUp: (index: number) => void
-  setActiveMode: (mode: ActiveMode) => void
   tick: () => void
   dismissToast: (id: number) => void
 }
@@ -65,7 +57,6 @@ function showToast(get: () => WorldTimeStore, set: (s: Partial<WorldTimeStore>) 
 
 export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
   bars: loadBars(),
-  activeMode: { type: 'none' },
   now: new Date(),
   toasts: [],
 
@@ -91,33 +82,10 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
     saveBars(bars)
   },
 
-  moveBarUp(index: number) {
-    if (index <= 0) return
-    const bars = [...get().bars] as [BarState, BarState, BarState]
-    // Move to first position (swap with index 0)
-    ;[bars[0], bars[index]] = [bars[index], bars[0]]
-    set({ bars })
-    saveBars(bars)
-  },
-
   removeBar(index: number) {
     const bars = [...get().bars] as [BarState, BarState, BarState]
     bars[index] = emptyBar()
-
-    const mode = get().activeMode
-    let activeMode = get().activeMode
-    if (
-      (mode.type === 'business' || mode.type === 'calendar') &&
-      mode.barIndex === index
-    ) {
-      activeMode = { type: 'none' }
-    }
-
-    set({ bars, activeMode })
+    set({ bars })
     saveBars(bars)
-  },
-
-  setActiveMode(mode: ActiveMode) {
-    set({ activeMode: mode })
   },
 }))
