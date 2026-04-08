@@ -199,9 +199,6 @@ export default function WorldMap() {
           {showCities ? 'Hide Cities' : 'Show Cities'}
         </button>
 
-        <div className="map-contact">
-          Feedback &amp; Bug Reports: <a href="mailto:sisolab@proton.me">sisolab@proton.me</a>
-        </div>
       </div>
 
       {/* ── Bottom panels ────────────────────────────────────── */}
@@ -234,6 +231,10 @@ export default function WorldMap() {
           )
         })}
       </div>
+
+      <p className="contact-text">
+        Feedback &amp; Bug Reports: <a href="mailto:sisolab@proton.me">sisolab@proton.me</a>
+      </p>
     </div>
   )
 }
