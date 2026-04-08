@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Pin, Trash2, Briefcase, CalendarDays } from 'lucide-react'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
-import { getBarHours, getCurrentHour, getDateLabel, getDateString } from '../utils/timeUtils'
+import { getBarHours, getCurrentHour, getDateLabel } from '../utils/timeUtils'
 import './TimeBar.css'
 
 interface TimeBarProps {
@@ -21,7 +21,6 @@ export default function TimeBar({ index }: TimeBarProps) {
     ? activeMode.date
     : undefined
 
-  // Determine mode for bar hours
   const hourMode = isBusinessActive ? 'business' : isCalendarActive ? 'calendar' : 'normal'
   const refDate = calendarDate ?? now
 
@@ -31,9 +30,8 @@ export default function TimeBar({ index }: TimeBarProps) {
 
   const currentHour = bar.city ? getCurrentHour(bar.city.timezone, refDate) : -1
 
-  // Current time string in this timezone
   const currentTimeStr = bar.city
-    ? new Intl.DateTimeFormat('ko-KR', {
+    ? new Intl.DateTimeFormat('en-GB', {
         timeZone: bar.city.timezone,
         hour: '2-digit',
         minute: '2-digit',
@@ -42,7 +40,11 @@ export default function TimeBar({ index }: TimeBarProps) {
     : null
 
   const dateStr = bar.city
-    ? getDateString(bar.city.timezone, isCalendarActive && calendarDate ? calendarDate : now)
+    ? new Intl.DateTimeFormat('en-US', {
+        timeZone: bar.city.timezone,
+        month: 'short',
+        day: 'numeric',
+      }).format(isCalendarActive && calendarDate ? calendarDate : now)
     : null
 
   function handleBusiness() {
@@ -70,7 +72,6 @@ export default function TimeBar({ index }: TimeBarProps) {
     setShowCalendar(false)
   }
 
-  // Default datetime value for input: now in local ISO (without seconds)
   const defaultDatetime = (() => {
     const d = calendarDate ?? now
     const pad = (n: number) => String(n).padStart(2, '0')
@@ -84,16 +85,15 @@ export default function TimeBar({ index }: TimeBarProps) {
       {/* City name + time display */}
       <div className="timebar-header">
         {isEmpty ? (
-          <span className="timebar-empty-hint">지도에서 도시를 클릭하세요</span>
+          <span className="timebar-empty-hint">Click a city on the map</span>
         ) : (
           <>
-            <span className="timebar-city">{bar.city!.nameKo}</span>
-            <span className="timebar-cityEn">{bar.city!.nameEn}</span>
+            <span className="timebar-city">{bar.city!.nameEn}</span>
             <span className="timebar-time">{currentTimeStr}</span>
             <span className="timebar-date">{dateStr}</span>
             {(isBusinessActive || isCalendarActive) && (
               <span className={`timebar-mode-badge ${isBusinessActive ? 'business' : 'calendar'}`}>
-                {isBusinessActive ? '업무 시간' : '날짜 지정'}
+                {isBusinessActive ? 'Business' : 'Custom'}
               </span>
             )}
           </>
@@ -107,7 +107,6 @@ export default function TimeBar({ index }: TimeBarProps) {
               const isNow = cell.hour === currentHour && hourMode !== 'business'
               const isBizNow = hourMode === 'business' && bar.city &&
                 getCurrentHour(bar.city.timezone, now) === cell.hour
-              // Date label: compare to current day in this timezone
               const nowInTz = new Date(now.toLocaleString('en-US', { timeZone: bar.city!.timezone }))
               const dateLabel = getDateLabel(cell.date, nowInTz)
 
@@ -134,7 +133,7 @@ export default function TimeBar({ index }: TimeBarProps) {
       <div className="timebar-actions">
         <button
           className={`ln-icon-btn ln-icon-btn-sm${bar.fixed ? ' active' : ''}`}
-          title={bar.fixed ? 'Fix 해제' : 'Fix (삭제 방지)'}
+          title={bar.fixed ? 'Unpin' : 'Pin (keep slot)'}
           onClick={() => toggleFix(index)}
           disabled={isEmpty}
         >
@@ -142,7 +141,7 @@ export default function TimeBar({ index }: TimeBarProps) {
         </button>
         <button
           className="ln-icon-btn ln-icon-btn-sm"
-          title="바 비우기"
+          title="Remove"
           onClick={() => removeBar(index)}
           disabled={isEmpty}
         >
@@ -150,7 +149,7 @@ export default function TimeBar({ index }: TimeBarProps) {
         </button>
         <button
           className={`ln-icon-btn ln-icon-btn-sm${isBusinessActive ? ' active' : ''}`}
-          title="업무 시간 기준 (09~18시)"
+          title="Business hours (09–18)"
           onClick={handleBusiness}
           disabled={isEmpty}
         >
@@ -159,7 +158,7 @@ export default function TimeBar({ index }: TimeBarProps) {
         <div className="timebar-calendar-wrap">
           <button
             className={`ln-icon-btn ln-icon-btn-sm${isCalendarActive ? ' active' : ''}`}
-            title="날짜/시각 지정"
+            title="Set date & time"
             onClick={handleCalendar}
             disabled={isEmpty}
           >

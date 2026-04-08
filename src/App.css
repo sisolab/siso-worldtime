@@ -15,26 +15,25 @@
   position: sticky;
   top: 0;
   z-index: 10;
+  text-align: center;
 }
 
 .app-title {
   margin: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.app-title-main {
   font-size: var(--ln-text-3xl);
   font-weight: var(--ln-weight-bold);
   color: var(--ln-text-heading);
-  letter-spacing: -0.3px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.app-title-sub {
-  font-size: var(--ln-text-sm);
-  color: var(--ln-text-tertiary);
+.app-title-by {
   font-weight: var(--ln-weight-normal);
+  font-size: var(--ln-text-md);
+  color: var(--ln-text-tertiary);
+  letter-spacing: 0;
+  text-transform: none;
+  margin: 0 2px;
 }
 
 .app-main {

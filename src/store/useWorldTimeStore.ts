@@ -59,37 +59,16 @@ export const useWorldTimeStore = create<WorldTimeStore>((set, get) => ({
   addCity(city: City) {
     const bars = [...get().bars] as [BarState, BarState, BarState]
 
-    // fixed bars occupy top positions; unfixed are below
-    const fixedBars = bars.filter((b) => b.fixed)
-    const unfixedBars = bars.filter((b) => !b.fixed)
-
-    // All fixed → block
-    if (unfixedBars.length === 0) {
-      showToast(get, set, 'Fix된 바가 가득 찼습니다. 도시를 제거하거나 Fix를 해제하세요.')
+    // All 3 bars occupied → block, user must delete manually
+    if (bars.every((b) => b.city !== null)) {
+      showToast(get, set, 'All 3 slots are in use. Remove one to add another.')
       return
     }
 
-    // Build new unfixed list: if there's an empty unfixed slot, add there;
-    // otherwise drop the oldest unfixed (first in array) and append new city at end
-    const hasEmpty = unfixedBars.some((b) => b.city === null)
-
-    let newUnfixed: BarState[]
-    if (hasEmpty) {
-      newUnfixed = unfixedBars.map((b, i) => {
-        if (b.city === null && !unfixedBars.slice(0, i).some((x) => x.city === null)) {
-          // fill first empty slot
-          return { city, fixed: false }
-        }
-        return b
-      })
-    } else {
-      // Drop first unfixed, append new
-      newUnfixed = [...unfixedBars.slice(1), { city, fixed: false }]
-    }
-
-    // Merge: fixed first, unfixed after
-    const merged = [...fixedBars, ...newUnfixed] as [BarState, BarState, BarState]
-    set({ bars: merged })
+    // Fill the first empty slot
+    const emptyIndex = bars.findIndex((b) => b.city === null)
+    bars[emptyIndex] = { city, fixed: false }
+    set({ bars })
   },
 
   removeBar(index: number) {

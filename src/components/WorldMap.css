@@ -7,6 +7,7 @@
   box-shadow: var(--ln-shadow-md);
 }
 
+/* Secondary city dot */
 .city-marker {
   transition: var(--ln-transition-base);
   cursor: pointer;
@@ -22,6 +23,38 @@
   user-select: none;
 }
 
+/* Representative city button */
+.city-rep-group {
+  cursor: pointer;
+}
+
+.city-rep-btn {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+  transition: var(--ln-transition-base);
+}
+
+.city-rep-group:hover .city-rep-btn {
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
+}
+
+.city-rep-name {
+  font-family: var(--ln-font);
+  font-size: 10px;
+  font-weight: var(--ln-weight-semibold);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  user-select: none;
+}
+
+.city-rep-time {
+  font-family: var(--ln-font-mono);
+  font-size: 10px;
+  font-weight: var(--ln-weight-semibold);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Legend */
 .map-legend {
   position: absolute;
   bottom: 10px;
@@ -48,8 +81,16 @@
   display: inline-block;
   width: 18px;
   height: 2px;
-  background: var(--ln-primary);
   border-radius: 1px;
+}
+
+.map-legend-line.dateline {
+  background: rgba(255, 220, 100, 0.9);
+  height: 2px;
+}
+
+.map-legend-line.prime {
+  background: rgba(180, 220, 255, 0.7);
 }
 
 .map-legend-dot {

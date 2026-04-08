@@ -16,8 +16,7 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1 className="app-title">
-          <span className="app-title-main">World Time</span>
-          <span className="app-title-sub">세계 시각</span>
+          WORLD TIME <span className="app-title-by">by</span> SISOLAB
         </h1>
       </header>
 
