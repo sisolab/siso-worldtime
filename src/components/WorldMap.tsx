@@ -1,124 +1,84 @@
-import { useMemo } from 'react'
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-  Marker,
-  Line,
-  useMapContext,
-} from 'react-simple-maps'
+import { useMemo, useCallback, useRef, useEffect, useState } from 'react'
+import Map, { Source, Layer, Marker } from 'react-map-gl/maplibre'
+import type { MapRef } from 'react-map-gl/maplibre'
+import 'maplibre-gl/dist/maplibre-gl.css'
 import type { City } from '../data/cities'
 import { CITIES } from '../data/cities'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
-import { COUNTRY_TIMEZONES } from '../data/countryTimezones'
-// import { US_STATE_TIMEZONES } from '../data/usStateTimezones'
 import {
-  countryFillColor, countryHoverColor,
-  cityDotColor, cityDotActiveColor,
-  labelBgColor, labelActiveBgColor,
-  labelBorderColor, labelActiveBorderColor,
-  timeTextColor,
+  getUtcOffsetHours,
 } from '../utils/timezoneColors'
+
+function labelBoxColor(timezone: string): string {
+  const h = ((getUtcOffsetHours(timezone) + 12) / 26) * 360
+  return `hsla(${Math.round(h)},65%,40%,0.7)`
+}
 import './WorldMap.css'
 
-const GEO_URL       = '/world-110m.json'
-// const US_STATES_URL = '/us-states.json'
-
-// Fixed visual constants (white ocean background)
-const MAP_UNMAPPED = '#e0e0e0'
-const MAP_BORDER   = 'rgba(0,0,0,0.15)'
-// const STATE_BORDER = 'rgba(0,0,0,0.10)'
-const TZ_LINE      = 'rgba(0,0,0,0.06)'
-const DATE_LINE    = 'rgba(180,140,40,0.55)'
-const PRIME_LINE   = 'rgba(40,80,180,0.40)'
-const TZ_OFFSETS = Array.from({ length: 27 }, (_, i) => i - 12)
+// Minimal basemap style — only background + water, no labels/boundaries/roads
+const MAP_STYLE: any = {
+  version: 8,
+  sources: {
+    openmaptiles: {
+      type: 'vector',
+      url: 'https://tiles.openfreemap.org/planet',
+    },
+  },
+  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+  layers: [
+    { id: 'background', type: 'background', paint: { 'background-color': '#d5d5d0' } },
+    { id: 'water', type: 'fill', source: 'openmaptiles', 'source-layer': 'water', paint: { 'fill-color': '#c2c8ca' } },
+  ],
+}
+const ADMIN1_URL = '/ne_admin1.geojson'
+const TZ_BOUNDS_URL = '/tz-boundaries.geojson'
 
 const REPRESENTATIVE_CITY_IDS = new Set([
-  // East Asia
   'seoul', 'tokyo', 'beijing',
-  // Southeast Asia
   'singapore', 'bangkok',
-  // South Asia
-  'mumbai',
-  // Middle East
-  'dubai',
-  // Russia / Eastern Europe
+  'mumbai', 'dubai',
   'moscow', 'warsaw',
-  // Europe
   'london', 'paris',
-  // Africa
   'cairo', 'lagos', 'nairobi', 'johannesburg',
-  // North America
   'newyork', 'chicago', 'losangeles', 'mexico',
-  // South America
   'saopaulo', 'buenosaires',
-  // Oceania
   'sydney', 'auckland',
 ])
 
-// Label bounding box and dot radius for collision detection
-const LABEL_W = 64
-const LABEL_H = 32
-const DOT_R = 8
-const HW = LABEL_W / 2
-const HH = LABEL_H / 2
-const DEFAULT_YO = DOT_R + 2   // default: just below the dot
+// ── Label placement constants ───────────────────────────────────────────────
+const LABEL_W = 64, LABEL_H = 34, DOT_R = 8
+const HW = LABEL_W / 2, HH = LABEL_H / 2
+const DEFAULT_YO = DOT_R + 2
 
-// Candidate positions (xo, yo) tried in preference order:
-// below → above → right → left → diagonals
 const LABEL_CANDIDATES: [number, number][] = [
-  [0,              DEFAULT_YO],
-  [0,              -(LABEL_H + DOT_R + 2)],
-  [ HW + DOT_R + 2, -HH],
+  [0, DEFAULT_YO],
+  [0, -(LABEL_H + DOT_R + 2)],
+  [HW + DOT_R + 2, -HH],
   [-(HW + DOT_R + 2), -HH],
-  [ HW * 0.65,     DEFAULT_YO],
-  [-HW * 0.65,     DEFAULT_YO],
-  [ HW * 0.65,     -(LABEL_H + DOT_R + 2)],
-  [-HW * 0.65,     -(LABEL_H + DOT_R + 2)],
+  [HW * 0.65, DEFAULT_YO],
+  [-HW * 0.65, DEFAULT_YO],
+  [HW * 0.65, -(LABEL_H + DOT_R + 2)],
+  [-HW * 0.65, -(LABEL_H + DOT_R + 2)],
 ]
 
-/**
- * Global iterative label placement.
- *
- * All labels start at "below" (DEFAULT_YO). Then we repeatedly loop over every
- * label and ask: "is there a candidate position that lowers my score, given
- * where everyone else currently sits?" — and switch if yes.  Repeat until no
- * label wants to move (local optimum of the global score).
- *
- * Score for one label = sum over all other cities of:
- *   • label–label bounding-box overlap area × 10   (heavy penalty)
- *   • label–dot bounding-box overlap area × 15     (heavier: dots must stay visible)
- *
- * After convergence a light radial nudge resolves any sub-pixel residual
- * label–label overlap that the discrete candidates can't perfectly remove.
- */
-function computeOffsets(
-  cities: City[],
-  project: (coords: [number, number]) => [number, number] | null
-): Record<string, [number, number]> {
-  const pts = cities.map((city) => {
-    const proj = project([city.lng, city.lat])
-    return {
-      id: city.id,
-      baseX: proj ? proj[0] : 0,
-      baseY: proj ? proj[1] : 0,
-      xo: 0 as number,
-      yo: DEFAULT_YO as number,
-    }
+interface LabelPoint {
+  id: string; baseX: number; baseY: number; xo: number; yo: number
+}
+
+function computeOffsets(cities: City[], project: (lng: number, lat: number) => { x: number; y: number }): Record<string, [number, number]> {
+  const pts: LabelPoint[] = cities.map(city => {
+    const p = project(city.lng, city.lat)
+    return { id: city.id, baseX: p.x, baseY: p.y, xo: 0, yo: DEFAULT_YO }
   })
 
-  // Global score contribution of label `lbl` at candidate (cxo, cyo)
-  function score(lbl: typeof pts[0], cxo: number, cyo: number): number {
-    const lcx = lbl.baseX + cxo
-    const lcy = lbl.baseY + cyo + HH
+  function score(lbl: LabelPoint, cxo: number, cyo: number): number {
+    const lcx = lbl.baseX + cxo, lcy = lbl.baseY + cyo + HH
     let s = 0
     for (const other of pts) {
       if (other.id === lbl.id) continue
-      // Label–label overlap
       const lox = LABEL_W - Math.abs(lcx - (other.baseX + other.xo))
       const loy = LABEL_H - Math.abs(lcy - (other.baseY + other.yo + HH))
       if (lox > 0 && loy > 0) s += lox * loy * 10
-      // Label–dot overlap (own dot excluded: it renders on top anyway)
       const dox = HW + DOT_R - Math.abs(lcx - other.baseX)
       const doy = HH + DOT_R - Math.abs(lcy - other.baseY)
       if (dox > 0 && doy > 0) s += dox * doy * 15
@@ -126,12 +86,9 @@ function computeOffsets(
     return s
   }
 
-  // Iterative global improvement: keep looping until no label wants to move
-  let improved = true
-  let pass = 0
+  let improved = true, pass = 0
   while (improved && pass < 40) {
-    improved = false
-    pass++
+    improved = false; pass++
     for (const lbl of pts) {
       const cur = score(lbl, lbl.xo, lbl.yo)
       let bestXo = lbl.xo, bestYo = lbl.yo, bestScore = cur
@@ -141,21 +98,19 @@ function computeOffsets(
         if (s === 0) break
       }
       if (bestXo !== lbl.xo || bestYo !== lbl.yo) {
-        lbl.xo = bestXo; lbl.yo = bestYo
-        improved = true
+        lbl.xo = bestXo; lbl.yo = bestYo; improved = true
       }
     }
   }
 
-  // Light radial nudge for sub-pixel residual label–label overlaps
+  // Sub-pixel nudge
   for (let iter = 0; iter < 60; iter++) {
     let moved = false
     for (let i = 0; i < pts.length; i++) {
       for (let j = i + 1; j < pts.length; j++) {
         const a = pts[i], b = pts[j]
-        const acx = a.baseX + a.xo, acy = a.baseY + a.yo + HH
-        const bcx = b.baseX + b.xo, bcy = b.baseY + b.yo + HH
-        const dx = acx - bcx, dy = acy - bcy
+        const dx = (a.baseX + a.xo) - (b.baseX + b.xo)
+        const dy = (a.baseY + a.yo + HH) - (b.baseY + b.yo + HH)
         const ox = LABEL_W - Math.abs(dx), oy = LABEL_H - Math.abs(dy)
         if (ox <= 0 || oy <= 0) continue
         const dist = Math.hypot(dx, dy)
@@ -172,7 +127,7 @@ function computeOffsets(
     if (!moved) break
   }
 
-  return Object.fromEntries(pts.map((p) => [p.id, [p.xo, p.yo] as [number, number]]))
+  return Object.fromEntries(pts.map(p => [p.id, [p.xo, p.yo] as [number, number]]))
 }
 
 function getCityTime(timezone: string, now: Date): string {
@@ -184,252 +139,104 @@ function getCityTime(timezone: string, now: Date): string {
   }).format(now)
 }
 
-const LABEL_PAD_Y = 3
-const LABEL_TEXT_SIZE = 10
-const LABEL_LINE_H = 14  // line height per text row
-
-/** Inner component — must live inside <ComposableMap> to use useMapContext. */
-function CityLabels({
-  repCities,
-  registeredCityIds,
-  now,
-  onToggle,
-}: {
-  repCities: City[]
-  registeredCityIds: Set<string | undefined>
-  now: Date
-  onToggle: (city: City) => void
-}) {
-  const { projection } = useMapContext()
-
-  const offsets = useMemo(() => {
-    const project = (coords: [number, number]) => {
-      try {
-        return (projection as any)(coords) as [number, number] | null
-      } catch {
-        return null
-      }
-    }
-    return computeOffsets(repCities, project)
-  }, [repCities, projection])
-
-  // box height = 2 rows of text + padding top/bottom
-  const boxH = LABEL_LINE_H * 2 + LABEL_PAD_Y * 2
-  const boxW = LABEL_W
-
-  return (
-    <>
-      {repCities.map((city) => {
-        const isRegistered = registeredCityIds.has(city.id)
-        const [xo, yo] = offsets[city.id] ?? [0, DOT_R + 2]
-        const timeStr = getCityTime(city.timezone, now)
-
-        // Dot size: 70 % of previous (was 6/5, now 4.2/3.5)
-        const dotR = isRegistered ? 3 : 2.5
-
-        // Connecting line: dot edge → label center
-        const lCx = xo
-        const lCy = yo + boxH / 2
-        const dist = Math.hypot(lCx, lCy)
-        const showLine = dist > dotR + 4
-        const angle = Math.atan2(lCy, lCx)
-        const x1 = Math.cos(angle) * dotR
-        const y1 = Math.sin(angle) * dotR
-        const x2 = lCx - Math.cos(angle) * 5
-        const y2 = lCy - Math.sin(angle) * 5
-
-        return (
-          <Marker
-            key={city.id}
-            coordinates={[city.lng, city.lat]}
-          >
-            <g className="city-rep-group">
-              {/* Connecting line — behind everything */}
-              {showLine && (
-                <line
-                  x1={x1} y1={y1}
-                  x2={x2} y2={y2}
-                  stroke={labelBorderColor(city.timezone)}
-                  strokeWidth={0.9}
-                  strokeDasharray="2 2"
-                  style={{ pointerEvents: 'none' }}
-                />
-              )}
-              {/* Label box — click target; drawn before dot so dot appears on top */}
-              <g
-                transform={`translate(${xo - boxW / 2},${yo})`}
-                onClick={() => onToggle(city)}
-                style={{ cursor: 'pointer' }}
-              >
-                <rect
-                  x={0} y={0}
-                  width={boxW} height={boxH}
-                  rx={3} ry={3}
-                  fill={isRegistered ? labelActiveBgColor(city.timezone) : labelBgColor(city.timezone)}
-                  stroke={isRegistered ? labelActiveBorderColor(city.timezone) : labelBorderColor(city.timezone)}
-                  strokeWidth={0.6}
-                />
-                <text
-                  x={boxW / 2}
-                  y={LABEL_PAD_Y + LABEL_TEXT_SIZE}
-                  textAnchor="middle"
-                  className="city-rep-name"
-                  fill="rgba(255,255,255,0.97)"
-                >
-                  {city.nameEn}
-                </text>
-                <text
-                  x={boxW / 2}
-                  y={LABEL_PAD_Y + LABEL_TEXT_SIZE + LABEL_LINE_H}
-                  textAnchor="middle"
-                  className="city-rep-time"
-                  fill={timeTextColor(city.timezone)}
-                >
-                  {timeStr}
-                </text>
-              </g>
-              {/* Dot — rendered last, always on top; not a click target */}
-              <circle
-                r={dotR}
-                fill={isRegistered ? cityDotActiveColor(city.timezone) : cityDotColor(city.timezone)}
-                stroke={isRegistered ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.25)'}
-                strokeWidth={isRegistered ? 1.5 : 1}
-                className="city-rep-dot"
-                style={{ pointerEvents: 'none' }}
-              />
-            </g>
-          </Marker>
-        )
-      })}
-    </>
-  )
-}
-
 export default function WorldMap() {
   const { bars, now, addCity, removeBar } = useWorldTimeStore()
+  const mapRef = useRef<MapRef>(null)
+  const [labelOffsets, setLabelOffsets] = useState<Record<string, [number, number]>>({})
 
   const registeredCityIds = useMemo(
     () => new Set(bars.map((b) => b.city?.id).filter(Boolean)),
     [bars]
   )
 
-  function toggleCity(city: City) {
+  const toggleCity = useCallback((city: City) => {
     const idx = bars.findIndex((b) => b.city?.id === city.id)
     if (idx !== -1) removeBar(idx)
     else addCity(city)
-  }
+  }, [bars, addCity, removeBar])
 
   const repCities = useMemo(
     () => CITIES.filter((c) => REPRESENTATIVE_CITY_IDS.has(c.id)),
     []
   )
 
-  // Recompute colors once per UTC hour (handles DST changes)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const hourKey = Math.floor(now.getTime() / 3_600_000)
+  // Recompute label positions when map loads or moves
+  const updateLabelPositions = useCallback(() => {
+    const map = mapRef.current?.getMap()
+    if (!map) return
+    const project = (lng: number, lat: number) => map.project([lng, lat])
+    setLabelOffsets(computeOffsets(repCities, project))
+  }, [repCities])
 
-  const countryColors = useMemo(() => {
-    const result: Record<number, { fill: string; hover: string }> = {}
-    for (const [id, tz] of Object.entries(COUNTRY_TIMEZONES)) {
-      result[Number(id)] = { fill: countryFillColor(tz), hover: countryHoverColor(tz) }
-    }
-    return result
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hourKey])
+  const onMapLoad = useCallback(() => {
+    updateLabelPositions()
+  }, [updateLabelPositions])
 
-  // const stateColors = useMemo(() => {
-  //   const result: Record<string, { fill: string; hover: string }> = {}
-  //   for (const [, tz] of Object.entries(US_STATE_TIMEZONES)) {
-  //     if (!result[tz]) {
-  //       result[tz] = { fill: countryFillColor(tz), hover: countryHoverColor(tz) }
-  //     }
-  //   }
-  //   return result
-  // }, [hourKey])
+  // Also recompute on zoom/move
+  useEffect(() => {
+    const map = mapRef.current?.getMap()
+    if (!map) return
+    map.on('moveend', updateLabelPositions)
+    return () => { map.off('moveend', updateLabelPositions) }
+  })
 
   return (
     <div className="worldmap-container">
-      <ComposableMap
-        projection="geoNaturalEarth1"
-        projectionConfig={{ scale: 170, center: [0, 10] }}
-        width={960}
-        height={480}
+      <Map
+        ref={mapRef}
+        initialViewState={{ longitude: 15, latitude: 25, zoom: 0.8 }}
+        mapStyle={MAP_STYLE}
         style={{ width: '100%', height: '100%' }}
+        attributionControl={false}
+        dragRotate={false}
+        onLoad={onMapLoad}
       >
-        {TZ_OFFSETS.map((offset) => (
-          <Line
-            key={`tz-${offset}`}
-            from={[offset * 15, 85]}
-            to={[offset * 15, -85]}
-            stroke={TZ_LINE}
-            strokeWidth={0.5}
-            strokeLinecap="round"
+        {/* Admin-1 timezone fill */}
+        <Source id="admin1" type="geojson" data={ADMIN1_URL}>
+          <Layer
+            id="admin1-fill"
+            type="fill"
+            paint={{ 'fill-color': ['get', 'tzColor'], 'fill-opacity': 0.92 }}
           />
-        ))}
+        </Source>
 
-        {/* International Date Line */}
-        <Line
-          from={[180, 85]}
-          to={[180, -85]}
-          stroke={DATE_LINE}
-          strokeWidth={2}
-          strokeLinecap="round"
-          strokeDasharray="6 3"
-        />
+        {/* Timezone boundary lines — only between different-timezone regions */}
+        <Source id="tz-bounds" type="geojson" data={TZ_BOUNDS_URL}>
+          <Layer
+            id="tz-boundary-lines"
+            type="line"
+            paint={{ 'line-color': '#000000', 'line-width': 1.5, 'line-opacity': 0.6 }}
+          />
+        </Source>
 
-        {/* Prime Meridian */}
-        <Line
-          from={[0, 85]}
-          to={[0, -85]}
-          stroke={PRIME_LINE}
-          strokeWidth={1.2}
-          strokeLinecap="round"
-        />
-
-        {/* Countries */}
-        <Geographies geography={GEO_URL}>
-          {({ geographies }: { geographies: any[] }) =>
-            geographies.map((geo: any) => {
-              const colors = countryColors[Number(geo.id)]
-              const fill      = colors?.fill  ?? MAP_UNMAPPED
-              const hoverFill = colors?.hover ?? MAP_UNMAPPED
-              return (
-                <Geography
-                  key={geo.rsmKey}
-                  geography={geo}
-                  fill={fill}
-                  stroke={MAP_BORDER}
-                  strokeWidth={0.5}
+        {/* City markers with computed label offsets */}
+        {repCities.map((city) => {
+          const isRegistered = registeredCityIds.has(city.id)
+          const timeStr = getCityTime(city.timezone, now)
+          const [xo, yo] = labelOffsets[city.id] ?? [0, DEFAULT_YO]
+          return (
+            <Marker key={city.id} longitude={city.lng} latitude={city.lat} anchor="center">
+              <div className="city-ml-root" onClick={() => toggleCity(city)}>
+                {/* Dot at center — always white with shadow */}
+                <div className={`city-ml-dot${isRegistered ? ' city-ml-dot--active' : ''}`} />
+                {/* Label box offset from dot — bg = timezone color, text = white */}
+                <div
+                  className="city-ml-label"
                   style={{
-                    default: { outline: 'none' },
-                    hover: { outline: 'none', fill: hoverFill },
-                    pressed: { outline: 'none' },
+                    transform: `translate(calc(-50% + ${xo}px), ${yo}px)`,
+                    background: labelBoxColor(city.timezone),
                   }}
-                />
-              )
-            })
-          }
-        </Geographies>
-
-        {/* US states — temporarily disabled for debugging */}
-
-        <CityLabels
-          repCities={repCities}
-          registeredCityIds={registeredCityIds}
-          now={now}
-          onToggle={toggleCity}
-        />
-      </ComposableMap>
+                >
+                  <span className="city-ml-name">{city.nameEn}</span>
+                  <span className="city-ml-time">{timeStr}</span>
+                </div>
+              </div>
+            </Marker>
+          )
+        })}
+      </Map>
 
       <div className="map-legend">
-        <span className="map-legend-item">
-          <span className="map-legend-line dateline" />
-          Date Line
-        </span>
-        <span className="map-legend-item">
-          <span className="map-legend-line prime" />
-          Prime Meridian
-        </span>
         <span className="map-legend-item">
           <span className="map-legend-dot registered" />
           Added

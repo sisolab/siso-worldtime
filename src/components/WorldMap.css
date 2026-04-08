@@ -1,58 +1,90 @@
 .worldmap-container {
   position: relative;
   width: 100%;
-  background: var(--map-ocean);
+  height: 480px;
   border-radius: var(--ln-radius-lg);
   overflow: hidden;
   box-shadow: var(--ln-shadow-md);
 }
 
-/* Secondary city dot */
-.city-marker {
-  transition: var(--ln-transition-base);
+/* City marker root — positioned at geographic center by MapLibre */
+.city-ml-root {
+  position: relative;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.city-label {
+.city-ml-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffffff;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+  z-index: 2;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.08),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+.city-ml-dot--active {
+  width: 9px;
+  height: 9px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.5),
+    0 3px 8px rgba(0, 0, 0, 0.3),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+.city-ml-root:hover .city-ml-dot {
+  transform: scale(1.4);
+}
+
+.city-ml-label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+  z-index: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Connecting line from dot to label */
+.city-ml-label::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.city-ml-name {
   font-family: var(--ln-font);
   font-size: 9px;
-  font-weight: var(--ln-weight-medium);
-  fill: white;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  pointer-events: none;
-  user-select: none;
-}
-
-/* Representative city: dot + label below */
-.city-rep-group {
-  cursor: pointer;
-}
-
-.city-rep-dot {
-  transition: var(--ln-transition-base);
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.6));
-}
-
-.city-rep-group:hover .city-rep-dot {
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.8));
-  opacity: 0.85;
-}
-
-.city-rep-name {
-  font-family: var(--ln-font);
-  font-size: 10px;
   font-weight: var(--ln-weight-semibold);
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9), 0 0 6px rgba(0, 0, 0, 0.6);
-  pointer-events: none;
-  user-select: none;
+  color: rgba(255, 255, 255, 0.97);
+  line-height: 1.3;
 }
 
-.city-rep-time {
+.city-ml-time {
   font-family: var(--ln-font-mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: var(--ln-weight-bold);
-  pointer-events: none;
-  user-select: none;
+  color: rgba(255, 255, 255, 0.97);
+  line-height: 1.3;
 }
 
 /* Legend */
@@ -68,6 +100,7 @@
   border: 1px solid rgba(0, 0, 0, 0.10);
   border-radius: var(--ln-radius-base);
   padding: 4px 10px;
+  z-index: 5;
 }
 
 .map-legend-item {
@@ -77,22 +110,6 @@
   font-size: var(--ln-text-xs);
   color: rgba(0, 0, 0, 0.70);
   font-family: var(--ln-font);
-}
-
-.map-legend-line {
-  display: inline-block;
-  width: 18px;
-  height: 2px;
-  border-radius: 1px;
-}
-
-.map-legend-line.dateline {
-  background: rgba(180, 140, 40, 0.8);
-  height: 2px;
-}
-
-.map-legend-line.prime {
-  background: rgba(40, 80, 180, 0.6);
 }
 
 .map-legend-dot {

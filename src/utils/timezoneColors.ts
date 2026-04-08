@@ -6,122 +6,83 @@ export function getUtcOffsetHours(timezone: string): number {
   return Math.round((tzMs - utcMs) / (900_000)) / 4
 }
 
-// ── Fixed high-contrast palette ──────────────────────────────────────────────
-// 27+ distinct colors, assigned so adjacent UTC offsets are maximally different.
+/**
+ * Map UTC offset to hue.
+ * Full 360° range, offset so adjacent timezones are ~14° apart.
+ * UTC-12 starts at hue 0° (red), wraps through the entire color wheel.
+ */
+function utcOffsetToHue(offset: number): number {
+  // Span: UTC-12 to UTC+14 = 26 hours → map to full 360°
+  return ((offset + 12) / 26) * 360
+}
 
-const TZ_PALETTE: Record<string, string> = {
-  '-12':    '#B71C1C', // dark red
-  '-11':    '#388E3C', // green
-  '-10':    '#303F9F', // indigo
-  '-9':     '#F57C00', // orange
-  '-9.5':   '#E65100', // deep orange
-  '-8':     '#7B1FA2', // purple
-  '-7':     '#00796B', // teal
-  '-6':     '#D32F2F', // red
-  '-5':     '#0D47A1', // dark blue
-  '-4':     '#689F38', // light green
-  '-3.5':   '#558B2F', // olive green
-  '-3':     '#C2185B', // pink
-  '-2':     '#0097A7', // cyan
-  '-1':     '#E65100', // deep orange
-  '0':      '#1B5E20', // dark green
-  '1':      '#1976D2', // blue
-  '2':      '#880E4F', // dark pink
-  '3':      '#827717', // olive
-  '3.5':    '#9E9D24', // lime
-  '4':      '#512DA8', // deep purple
-  '4.5':    '#4527A0', // indigo
-  '5':      '#0288D1', // light blue
-  '5.5':    '#00695C', // dark teal
-  '5.75':   '#004D40', // darker teal
-  '6':      '#E64A19', // deep orange
-  '6.5':    '#BF360C', // brown-orange
-  '7':      '#2E7D32', // green
-  '8':      '#AD1457', // magenta
-  '8.75':   '#880E4F', // dark pink
-  '9':      '#1565C0', // blue
-  '9.5':    '#0D47A1', // dark blue
-  '10':     '#F57C00', // orange
-  '10.5':   '#E65100', // deep orange
-  '11':     '#00838F', // teal-cyan
-  '12':     '#5D4037', // brown
-  '12.75':  '#4E342E', // dark brown
-  '13':     '#455A64', // blue grey
-  '14':     '#6A1B9A', // purple
+function timezoneToHue(timezone: string): number {
+  return utcOffsetToHue(getUtcOffsetHours(timezone))
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function hexToRgb(hex: string): [number, number, number] {
-  return [
-    parseInt(hex.slice(1, 3), 16),
-    parseInt(hex.slice(3, 5), 16),
-    parseInt(hex.slice(5, 7), 16),
-  ]
+function hsl(h: number, s: number, l: number): string {
+  return `hsl(${h.toFixed(0)},${s}%,${l}%)`
 }
 
-function rgba(hex: string, a: number): string {
-  const [r, g, b] = hexToRgb(hex)
-  return `rgba(${r},${g},${b},${a})`
-}
-
-function lighten(hex: string, factor: number): string {
-  const [r, g, b] = hexToRgb(hex)
-  const lr = Math.min(255, Math.round(r + (255 - r) * factor))
-  const lg = Math.min(255, Math.round(g + (255 - g) * factor))
-  const lb = Math.min(255, Math.round(b + (255 - b) * factor))
-  return `rgb(${lr},${lg},${lb})`
-}
-
-function darken(hex: string, factor: number): string {
-  const [r, g, b] = hexToRgb(hex)
-  return `rgb(${Math.round(r * (1 - factor))},${Math.round(g * (1 - factor))},${Math.round(b * (1 - factor))})`
-}
-
-/** Look up the fixed palette color for a timezone. */
-export function getTimezoneBaseColor(timezone: string): string {
-  const offset = getUtcOffsetHours(timezone)
-  const key = String(offset)
-  if (TZ_PALETTE[key]) return TZ_PALETTE[key]
-  // Fall back to nearest integer offset
-  const rounded = String(Math.round(offset))
-  return TZ_PALETTE[rounded] ?? '#9E9E9E'
+function hsla(h: number, s: number, l: number, a: number): string {
+  return `hsla(${h.toFixed(0)},${s}%,${l}%,${a})`
 }
 
 // ── Per-element color exports ────────────────────────────────────────────────
+// High saturation + good lightness for maximum distinction on white background.
 
+/** Country polygon fill — vivid, opaque on white ocean. */
 export function countryFillColor(timezone: string): string {
-  return rgba(getTimezoneBaseColor(timezone), 0.85)
+  const h = timezoneToHue(timezone)
+  return hsla(h, 70, 45, 0.90)
 }
 
+/** Country polygon hover — brighter. */
 export function countryHoverColor(timezone: string): string {
-  return lighten(getTimezoneBaseColor(timezone), 0.25)
+  const h = timezoneToHue(timezone)
+  return hsl(h, 80, 55)
 }
 
+/** City dot fill (unregistered). */
 export function cityDotColor(timezone: string): string {
-  return getTimezoneBaseColor(timezone)
+  const h = timezoneToHue(timezone)
+  return hsl(h, 85, 40)
 }
 
+/** City dot fill (registered/added). */
 export function cityDotActiveColor(timezone: string): string {
-  return lighten(getTimezoneBaseColor(timezone), 0.15)
+  const h = timezoneToHue(timezone)
+  return hsl(h, 90, 50)
 }
 
+/** Label box background (unregistered). */
 export function labelBgColor(timezone: string): string {
-  return rgba(darken(getTimezoneBaseColor(timezone), 0.35), 0.92)
+  const h = timezoneToHue(timezone)
+  return hsla(h, 50, 15, 0.92)
 }
 
+/** Label box background (registered). */
 export function labelActiveBgColor(timezone: string): string {
-  return rgba(darken(getTimezoneBaseColor(timezone), 0.15), 0.94)
+  const h = timezoneToHue(timezone)
+  return hsla(h, 65, 22, 0.94)
 }
 
+/** Label box border (unregistered). */
 export function labelBorderColor(timezone: string): string {
-  return rgba(getTimezoneBaseColor(timezone), 0.55)
+  const h = timezoneToHue(timezone)
+  return hsla(h, 60, 45, 0.55)
 }
 
+/** Label box border (registered). */
 export function labelActiveBorderColor(timezone: string): string {
-  return rgba(getTimezoneBaseColor(timezone), 0.85)
+  const h = timezoneToHue(timezone)
+  return hsla(h, 80, 50, 0.85)
 }
 
+/** Time text color inside label. */
 export function timeTextColor(timezone: string): string {
-  return lighten(getTimezoneBaseColor(timezone), 0.6)
+  const h = timezoneToHue(timezone)
+  return hsla(h, 70, 78, 0.97)
 }
