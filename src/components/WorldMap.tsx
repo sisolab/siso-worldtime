@@ -15,23 +15,28 @@ import './WorldMap.css'
 const GEO_URL = '/world-110m.json'
 const TZ_OFFSETS = Array.from({ length: 27 }, (_, i) => i - 12)
 
+// Option C: continent/region-balanced representative cities
 const REPRESENTATIVE_CITY_IDS = new Set([
-  'auckland',    // UTC+12
-  'sydney',      // UTC+10
-  'seoul',       // UTC+9
-  'singapore',   // UTC+8
-  'bangkok',     // UTC+7
-  'dhaka',       // UTC+6
-  'karachi',     // UTC+5
-  'dubai',       // UTC+4
-  'moscow',      // UTC+3
-  'cairo',       // UTC+2
-  'paris',       // UTC+1
-  'london',      // UTC+0
-  'saopaulo',    // UTC-3
-  'newyork',     // UTC-5
-  'mexico',      // UTC-6
-  'losangeles',  // UTC-8
+  // East Asia
+  'seoul', 'tokyo', 'beijing',
+  // Southeast Asia
+  'singapore', 'bangkok',
+  // South Asia
+  'mumbai',
+  // Middle East
+  'dubai',
+  // Russia / Central Asia
+  'moscow',
+  // Europe
+  'london', 'paris',
+  // Africa
+  'cairo', 'lagos', 'nairobi',
+  // North America
+  'newyork', 'chicago', 'losangeles',
+  // South America
+  'saopaulo', 'buenosaires',
+  // Oceania
+  'sydney', 'auckland',
 ])
 
 // Bounding box of the label area (dot + name + time below it)
