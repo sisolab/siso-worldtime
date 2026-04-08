@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Trash2, Briefcase, CalendarDays } from 'lucide-react'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
 import { getBarHours, getCurrentHour, getDateLabel } from '../utils/timeUtils'
+import { cityDotActiveColor } from '../utils/timezoneColors'
 import './TimeBar.css'
 
 interface TimeBarProps {
@@ -80,8 +81,13 @@ export default function TimeBar({ index }: TimeBarProps) {
 
   const isEmpty = !bar.city
 
+  const accentColor = !isEmpty ? cityDotActiveColor(bar.city!.timezone) : undefined
+
   return (
-    <div className={`timebar${isEmpty ? ' timebar--empty' : ''}`}>
+    <div
+      className={`timebar${isEmpty ? ' timebar--empty' : ''}`}
+      style={accentColor ? { borderLeftColor: accentColor } : undefined}
+    >
       {/* City name + time display */}
       <div className="timebar-header">
         {isEmpty ? (

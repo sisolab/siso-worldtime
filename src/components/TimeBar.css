@@ -4,6 +4,7 @@
   gap: var(--ln-gap-lg);
   background: var(--ln-bg-frosted);
   border: 1px solid var(--ln-border);
+  border-left: 3px solid transparent;
   border-radius: var(--ln-radius-lg);
   padding: 10px 14px;
   box-shadow: var(--ln-shadow-sm);

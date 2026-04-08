@@ -10,9 +10,27 @@ import {
 import type { City } from '../data/cities'
 import { CITIES } from '../data/cities'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
+import { COUNTRY_TIMEZONES } from '../data/countryTimezones'
+// import { US_STATE_TIMEZONES } from '../data/usStateTimezones'
+import {
+  countryFillColor, countryHoverColor,
+  cityDotColor, cityDotActiveColor,
+  labelBgColor, labelActiveBgColor,
+  labelBorderColor, labelActiveBorderColor,
+  timeTextColor,
+} from '../utils/timezoneColors'
 import './WorldMap.css'
 
-const GEO_URL = '/world-110m.json'
+const GEO_URL       = '/world-110m.json'
+// const US_STATES_URL = '/us-states.json'
+
+// Fixed visual constants (white ocean background)
+const MAP_UNMAPPED = '#e0e0e0'
+const MAP_BORDER   = 'rgba(0,0,0,0.15)'
+// const STATE_BORDER = 'rgba(0,0,0,0.10)'
+const TZ_LINE      = 'rgba(0,0,0,0.06)'
+const DATE_LINE    = 'rgba(180,140,40,0.55)'
+const PRIME_LINE   = 'rgba(40,80,180,0.40)'
 const TZ_OFFSETS = Array.from({ length: 27 }, (_, i) => i - 12)
 
 const REPRESENTATIVE_CITY_IDS = new Set([
@@ -231,7 +249,7 @@ function CityLabels({
                 <line
                   x1={x1} y1={y1}
                   x2={x2} y2={y2}
-                  stroke="rgba(255,255,255,0.4)"
+                  stroke={labelBorderColor(city.timezone)}
                   strokeWidth={0.9}
                   strokeDasharray="2 2"
                   style={{ pointerEvents: 'none' }}
@@ -247,8 +265,8 @@ function CityLabels({
                   x={0} y={0}
                   width={boxW} height={boxH}
                   rx={3} ry={3}
-                  fill={isRegistered ? 'rgba(30,80,180,0.72)' : 'rgba(20,30,60,0.55)'}
-                  stroke={isRegistered ? 'rgba(120,180,255,0.5)' : 'rgba(255,255,255,0.22)'}
+                  fill={isRegistered ? labelActiveBgColor(city.timezone) : labelBgColor(city.timezone)}
+                  stroke={isRegistered ? labelActiveBorderColor(city.timezone) : labelBorderColor(city.timezone)}
                   strokeWidth={0.6}
                 />
                 <text
@@ -265,7 +283,7 @@ function CityLabels({
                   y={LABEL_PAD_Y + LABEL_TEXT_SIZE + LABEL_LINE_H}
                   textAnchor="middle"
                   className="city-rep-time"
-                  fill={isRegistered ? 'rgba(160,210,255,0.97)' : 'rgba(255,255,255,0.80)'}
+                  fill={timeTextColor(city.timezone)}
                 >
                   {timeStr}
                 </text>
@@ -273,8 +291,8 @@ function CityLabels({
               {/* Dot — rendered last, always on top; not a click target */}
               <circle
                 r={dotR}
-                fill={isRegistered ? 'var(--ln-primary)' : 'rgba(255,255,255,0.9)'}
-                stroke={isRegistered ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.4)'}
+                fill={isRegistered ? cityDotActiveColor(city.timezone) : cityDotColor(city.timezone)}
+                stroke={isRegistered ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.25)'}
                 strokeWidth={isRegistered ? 1.5 : 1}
                 className="city-rep-dot"
                 style={{ pointerEvents: 'none' }}
@@ -306,6 +324,29 @@ export default function WorldMap() {
     []
   )
 
+  // Recompute colors once per UTC hour (handles DST changes)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const hourKey = Math.floor(now.getTime() / 3_600_000)
+
+  const countryColors = useMemo(() => {
+    const result: Record<number, { fill: string; hover: string }> = {}
+    for (const [id, tz] of Object.entries(COUNTRY_TIMEZONES)) {
+      result[Number(id)] = { fill: countryFillColor(tz), hover: countryHoverColor(tz) }
+    }
+    return result
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hourKey])
+
+  // const stateColors = useMemo(() => {
+  //   const result: Record<string, { fill: string; hover: string }> = {}
+  //   for (const [, tz] of Object.entries(US_STATE_TIMEZONES)) {
+  //     if (!result[tz]) {
+  //       result[tz] = { fill: countryFillColor(tz), hover: countryHoverColor(tz) }
+  //     }
+  //   }
+  //   return result
+  // }, [hourKey])
+
   return (
     <div className="worldmap-container">
       <ComposableMap
@@ -320,7 +361,7 @@ export default function WorldMap() {
             key={`tz-${offset}`}
             from={[offset * 15, 85]}
             to={[offset * 15, -85]}
-            stroke="rgba(255,255,255,0.12)"
+            stroke={TZ_LINE}
             strokeWidth={0.5}
             strokeLinecap="round"
           />
@@ -330,7 +371,7 @@ export default function WorldMap() {
         <Line
           from={[180, 85]}
           to={[180, -85]}
-          stroke="rgba(255, 220, 100, 0.85)"
+          stroke={DATE_LINE}
           strokeWidth={2}
           strokeLinecap="round"
           strokeDasharray="6 3"
@@ -340,29 +381,37 @@ export default function WorldMap() {
         <Line
           from={[0, 85]}
           to={[0, -85]}
-          stroke="rgba(180, 220, 255, 0.6)"
+          stroke={PRIME_LINE}
           strokeWidth={1.2}
           strokeLinecap="round"
         />
 
+        {/* Countries */}
         <Geographies geography={GEO_URL}>
           {({ geographies }: { geographies: any[] }) =>
-            geographies.map((geo: any) => (
-              <Geography
-                key={geo.rsmKey}
-                geography={geo}
-                fill="var(--map-land)"
-                stroke="var(--map-border)"
-                strokeWidth={0.4}
-                style={{
-                  default: { outline: 'none' },
-                  hover: { outline: 'none', fill: 'var(--map-land-hover)' },
-                  pressed: { outline: 'none' },
-                }}
-              />
-            ))
+            geographies.map((geo: any) => {
+              const colors = countryColors[Number(geo.id)]
+              const fill      = colors?.fill  ?? MAP_UNMAPPED
+              const hoverFill = colors?.hover ?? MAP_UNMAPPED
+              return (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  fill={fill}
+                  stroke={MAP_BORDER}
+                  strokeWidth={0.5}
+                  style={{
+                    default: { outline: 'none' },
+                    hover: { outline: 'none', fill: hoverFill },
+                    pressed: { outline: 'none' },
+                  }}
+                />
+              )
+            })
           }
         </Geographies>
+
+        {/* US states — temporarily disabled for debugging */}
 
         <CityLabels
           repCities={repCities}
