@@ -1,6 +1,5 @@
 import { useEffect } from 'react'
 import WorldMap from './components/WorldMap'
-import TimeBar from './components/TimeBar'
 import { useWorldTimeStore } from './store/useWorldTimeStore'
 import './App.css'
 
@@ -25,11 +24,6 @@ export default function App() {
           <WorldMap />
         </section>
 
-        <section className="app-bars-section">
-          <TimeBar index={0} />
-          <TimeBar index={1} />
-          <TimeBar index={2} />
-        </section>
       </main>
 
       <div className="toast-container">

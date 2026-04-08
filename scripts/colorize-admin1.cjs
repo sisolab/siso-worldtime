@@ -61,6 +61,7 @@ const COUNTRY_TZ = {
   MF:'America/Marigot',MS:'America/Montserrat',MX:'America/Mexico_City',
   NI:'America/Managua',PA:'America/Panama',PE:'America/Lima',PM:'America/Miquelon',
   PR:'America/Puerto_Rico',PY:'America/Asuncion',SR:'America/Paramaribo',
+  SR:'America/Paramaribo',
   SV:'America/El_Salvador',SX:'America/Lower_Princes',TT:'America/Port_of_Spain',
   US:'America/New_York',UY:'America/Montevideo',VC:'America/St_Vincent',
   VE:'America/Caracas',VI:'America/St_Thomas',
