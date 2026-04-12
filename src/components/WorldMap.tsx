@@ -66,16 +66,33 @@ export default function WorldMap() {
   const [customTime, setCustomTime] = useState<Date | null>(null)
   const [hoverCol, setHoverCol] = useState<number | null>(null)
   const [dateOffset, setDateOffset] = useState(0)
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('worldtime-theme') === 'dark'
+  const [themeOverride, setThemeOverride] = useState<'auto' | 'light' | 'dark'>(() => {
+    return (localStorage.getItem('worldtime-theme') as 'auto' | 'light' | 'dark') ?? 'auto'
   })
+  const [systemDark, setSystemDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
   const activeTime = customTime ?? now
+  const darkMode = themeOverride === 'auto' ? systemDark : themeOverride === 'dark'
 
-  // Apply theme to document
+  // Listen to system theme changes
+  React.useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)')
+    const handler = (e: MediaQueryListEvent) => setSystemDark(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  // Apply theme
   React.useEffect(() => {
     document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
-    localStorage.setItem('worldtime-theme', darkMode ? 'dark' : 'light')
   }, [darkMode])
+
+  function cycleTheme() {
+    setThemeOverride(prev => {
+      const next = prev === 'auto' ? 'light' : prev === 'light' ? 'dark' : 'auto'
+      localStorage.setItem('worldtime-theme', next)
+      return next
+    })
+  }
 
   const nightGeoJson = useMemo(() => buildNightGeoJson(activeTime), [activeTime])
 
@@ -208,8 +225,8 @@ export default function WorldMap() {
           {showCities ? 'Hide Cities' : 'Show Cities'}
         </button>
 
-        <button className="theme-toggle-btn" onClick={() => setDarkMode(v => !v)}>
-          {darkMode ? '☀️' : '🌙'}
+        <button className="theme-toggle-btn" onClick={cycleTheme}>
+          {themeOverride === 'auto' ? 'Auto' : themeOverride === 'dark' ? 'Dark' : 'Light'}
         </button>
 
       </div>

@@ -43,14 +43,17 @@
   background: var(--btn-bg);
   border: 1px solid var(--btn-border);
   border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 14px;
+  padding: 4px 10px;
+  font-family: var(--ln-font);
+  font-size: 11px;
+  font-weight: var(--ln-weight-semibold);
+  color: var(--btn-text);
   cursor: pointer;
-  line-height: 1;
 }
 
 .theme-toggle-btn:hover {
   background: var(--card-bg-solid);
+  border-color: var(--panel-border);
 }
 
 .contact-text {
