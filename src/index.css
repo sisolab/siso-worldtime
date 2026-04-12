@@ -1,10 +1,36 @@
-/* Map color variables */
+/* ── Theme variables ────────────────────────────────────────────────────── */
 :root {
   --app-bg: #e8f4f0;
-  --map-ocean: #ffffff;
-  --map-land: #e0e0e0;
-  --map-land-hover: #d0d0d0;
-  --map-border: rgba(0, 0, 0, 0.15);
+  --text-primary: #222;
+  --text-secondary: #666;
+  --text-muted: #999;
+  --panel-bg: #f0f1f3;
+  --panel-border: rgba(0, 0, 0, 0.15);
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-bg-solid: #ffffff;
+  --map-border-color: #000000;
+  --btn-bg: rgba(255, 255, 255, 0.9);
+  --btn-border: rgba(0, 0, 0, 0.15);
+  --btn-text: #333;
+  --cell-divider: rgba(0, 0, 0, 0.08);
+  --hover-bg: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] {
+  --app-bg: #0f1923;
+  --text-primary: #e0e0e0;
+  --text-secondary: #aaa;
+  --text-muted: #666;
+  --panel-bg: #1a2332;
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(30, 40, 55, 0.85);
+  --card-bg-solid: #1e2837;
+  --map-border-color: rgba(255, 255, 255, 0.2);
+  --btn-bg: rgba(30, 40, 55, 0.9);
+  --btn-border: rgba(255, 255, 255, 0.15);
+  --btn-text: #ddd;
+  --cell-divider: rgba(255, 255, 255, 0.08);
+  --hover-bg: rgba(255, 255, 255, 0.05);
 }
 
 *, *::before, *::after {

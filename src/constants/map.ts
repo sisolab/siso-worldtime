@@ -1,17 +1,21 @@
-/** Minimal MapLibre style — background only, no labels/roads/boundaries */
-export const MAP_STYLE: any = {
-  version: 8,
-  sources: {
-    openmaptiles: {
-      type: 'vector',
-      url: 'https://tiles.openfreemap.org/planet',
+function makeMapStyle(bg: string): any {
+  return {
+    version: 8,
+    sources: {
+      openmaptiles: {
+        type: 'vector',
+        url: 'https://tiles.openfreemap.org/planet',
+      },
     },
-  },
-  glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
-  layers: [
-    { id: 'background', type: 'background', paint: { 'background-color': '#e8f4f0' } },
-  ],
+    glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
+    layers: [
+      { id: 'background', type: 'background', paint: { 'background-color': bg } },
+    ],
+  }
 }
+
+export const MAP_STYLE_LIGHT = makeMapStyle('#e8f4f0')
+export const MAP_STYLE_DARK = makeMapStyle('#1a2332')
 
 export const ADMIN1_URL = '/ne_admin1.geojson'
 export const TZ_BOUNDS_URL = '/tz-boundaries.geojson'

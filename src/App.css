@@ -21,15 +21,14 @@
   margin: 0;
   font-size: var(--ln-text-3xl);
   font-weight: var(--ln-weight-bold);
-  color: var(--ln-text-heading);
+  color: var(--text-primary);
   letter-spacing: 0.5px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .app-title-by {
   font-weight: var(--ln-weight-normal);
   font-size: var(--ln-text-md);
-  color: var(--ln-text-tertiary);
+  color: var(--text-muted);
   letter-spacing: 0;
   text-transform: none;
   margin: 0 2px;

@@ -19,6 +19,12 @@
 
 GeoJSON 색상 재생성: `node scripts/colorize-admin1.cjs`
 
+## 개발 환경
+- 런타임: mise (node)
+- 패키지: pnpm
+- 빌드: Vite
+- 배포: Vercel
+
 ## 해결해야 할 문제
 → `docs/PLAN.md` 참조
 

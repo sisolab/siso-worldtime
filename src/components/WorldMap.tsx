@@ -6,7 +6,7 @@ import { CITIES, type City } from '../data/cities'
 import { useWorldTimeStore } from '../store/useWorldTimeStore'
 import { computeAboveCities } from '../utils/labelPlacement'
 import {
-  MAP_STYLE, ADMIN1_URL, TZ_BOUNDS_URL, COASTLINE_URL,
+  MAP_STYLE_LIGHT, MAP_STYLE_DARK, ADMIN1_URL, TZ_BOUNDS_URL, COASTLINE_URL,
   TZ_ABBR_MAP, REPRESENTATIVE_CITY_IDS, LABEL_GAP,
 } from '../constants/map'
 import CityTimeBar from './CityTimeBar'
@@ -66,7 +66,16 @@ export default function WorldMap() {
   const [customTime, setCustomTime] = useState<Date | null>(null)
   const [hoverCol, setHoverCol] = useState<number | null>(null)
   const [dateOffset, setDateOffset] = useState(0)
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('worldtime-theme') === 'dark'
+  })
   const activeTime = customTime ?? now
+
+  // Apply theme to document
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light')
+    localStorage.setItem('worldtime-theme', darkMode ? 'dark' : 'light')
+  }, [darkMode])
 
   const nightGeoJson = useMemo(() => buildNightGeoJson(activeTime), [activeTime])
 
@@ -106,7 +115,7 @@ export default function WorldMap() {
         <Map
           ref={mapRef}
           initialViewState={{ longitude: 15, latitude: 25, zoom: 0.8 }}
-          mapStyle={MAP_STYLE}
+          mapStyle={darkMode ? MAP_STYLE_DARK : MAP_STYLE_LIGHT}
           style={{ width: '100%', height: '100%' }}
           attributionControl={false}
           scrollZoom={false} boxZoom={false} doubleClickZoom={false}
@@ -134,7 +143,7 @@ export default function WorldMap() {
 
           {/* Coastline */}
           <Source id="coastline" type="geojson" data={COASTLINE_URL}>
-            <Layer id="coastline-line" type="line" paint={{ 'line-color': 'rgba(0,0,0,0.2)', 'line-width': 1.5 }} />
+            <Layer id="coastline-line" type="line" paint={{ 'line-color': darkMode ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.2)', 'line-width': 1.5 }} />
           </Source>
 
           {/* Country borders */}
@@ -197,6 +206,10 @@ export default function WorldMap() {
 
         <button className="toggle-cities-btn" onClick={() => setShowCities(v => !v)}>
           {showCities ? 'Hide Cities' : 'Show Cities'}
+        </button>
+
+        <button className="theme-toggle-btn" onClick={() => setDarkMode(v => !v)}>
+          {darkMode ? '☀️' : '🌙'}
         </button>
 
       </div>
