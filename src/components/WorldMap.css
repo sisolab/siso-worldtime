@@ -343,8 +343,8 @@
 }
 
 .city-timebar-cell.current {
-  background: #4A90D9;
-  color: #ffffff;
+  background: #4A90D9 !important;
+  color: #ffffff !important;
   font-weight: var(--ln-weight-bold);
 }
 
